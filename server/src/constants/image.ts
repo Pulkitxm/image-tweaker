@@ -15,9 +15,9 @@ export const sortQueryParamnsIndex = [
   { property: "width", type: checkNumStr }, // url: /image?width=100 any number
   { property: "height", type: checkNumStr }, // url: /image?height=100 any number
   { property: "crop", type: checkArrStr }, // url: /image?crop=100,100,100,100
-  { property: "flip", type: checkFlip }, // url: /image?flip=0.5
-  { property: "xflip", type: checkFlip }, // url: /image?xflip=0.5
-  { property: "yflip", type: checkFlip }, // url: /image?yflip=0.5
+  { property: "flip", type: checkFlip }, // url: /image?flip=1 0 or 1
+  { property: "xflip", type: checkFlip }, // url: /image?xflip=1 0 or 1
+  { property: "yflip", type: checkFlip }, // url: /image?yflip=1 0 or 1
 
   // Color Adjustments
   { property: "brightness", type: checkValbetweenminus1and1 }, // url: /image?brightness=0.5 (-1)-1

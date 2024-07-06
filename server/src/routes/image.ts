@@ -13,7 +13,13 @@ const imageRouter = Router();
 const store: {
   public_id: string;
   secure_url: string;
-}[] = [];
+}[] = [
+  {
+    public_id: "ra4ldxqnymcfu0k1hepq",
+    secure_url:
+      "https://res.cloudinary.com/de43ndsip/image/upload/v1720202973/ra4ldxqnymcfu0k1hepq.jpg",
+  },
+];
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -61,8 +67,12 @@ imageRouter.get("/:public_id", async (request, response) => {
     //     return response.status(404).json({ message: 'Image not found' });
     // }
     // const imageUrl = selectedImg.secure_url;
-    const imageUrl =
-      "https://res.cloudinary.com/dg2xwep5s/image/upload/v1720183125/image-optimization/wt7nbhwb6ggnodjudxt6.jpg";
+    const imageUrl = store.find(
+      (image) => image.public_id === public_id
+    )?.secure_url;
+    if (!imageUrl) {
+      return response.status(404).json({ message: "Image not found" });
+    }
     const imageResponse = await axios.get(imageUrl, {
       responseType: "arraybuffer",
     });

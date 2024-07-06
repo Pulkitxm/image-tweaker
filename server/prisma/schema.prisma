@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String
+  password String
+  images   Image[]
+}
+
+model Image {
+  id             String @id @default(cuid())
+  cloudinary_url String
+  createdBy      User   @relation(fields: [createdById], references: [id])
+  createdById    String
+}

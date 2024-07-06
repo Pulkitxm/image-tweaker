@@ -19,8 +19,11 @@ export const checkArrStr = z.string().transform((val) => {
   }
   return parsed;
 });
-export const checkFlip = z.number().transform((val) => {
-  if (![0].includes(val)) {
+export const checkFlip = checkNumStr.transform((val) => {
+  if (val === null) {
+    return null;
+  }
+  if (![0, 1].includes(val)) {
     return null;
   }
   return val;
