@@ -1,6 +1,6 @@
 import Jimp from "jimp";
 import QueryString from "qs";
-import { ImageManipulation } from "../types/image";
+import { ImageManipulation } from "../schema/image";
 import { sortQueryParamnsIndex } from "../constants/image";
 
 export function sortQueryParamns(searchParams: QueryString.ParsedQs) {

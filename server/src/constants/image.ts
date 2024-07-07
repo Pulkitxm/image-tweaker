@@ -7,7 +7,7 @@ import {
     checkValbetween0and1,
     checkValbetweenminus1and1,
     greaterThan0,
-  } from "../types/image";
+  } from "../schema/image";
 
 export const sortQueryParamnsIndex = [
   // Basic image manipulation
