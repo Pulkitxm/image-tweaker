@@ -5,6 +5,7 @@ import { BACKEND_API_BASE_URL } from "../../config";
 import Loader from "../../assets/Loader";
 import Layout from "./Layout";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -16,12 +17,35 @@ export default function Login() {
     name: "test",
     className:
       "inline-flex flex-col justify-center items-center space-y-4 w-full bg-transparent w-full",
-    onSubmit: async (event, values) => {
+    onSubmit: async (event, values, errors, zodErrors) => {
       event.preventDefault();
-      await axios.post(BACKEND_API_BASE_URL + "/api/auth/login", values, {
-        withCredentials: true,
-      });
-      navigate("/dashboard");
+      if (zodErrors.length != 0 || errors.length != 0)
+        return console.error(zodErrors, errors);
+
+      toast.promise(
+        axios.post(BACKEND_API_BASE_URL + "/api/auth/login", values, {
+          withCredentials: true,
+        }),
+        {
+          loading: "Logging in...",
+          success: () => {
+            navigate("/dashboard");
+            return "Logged in successfully";
+          },
+          error: (err) => {
+            if (err.response.data.message) return err.response.data.message;
+            return "Internal Server Error";
+          },
+        },
+        {
+          success: {
+            duration: 3000,
+          },
+          error: {
+            duration: 3000,
+          },
+        }
+      );
     },
     children: [
       {
@@ -33,10 +57,11 @@ export default function Login() {
           formElement: "input",
           type: "text",
           name: "username",
-          value: "pulkit",
           className:
             "mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300 w-full",
           zodValidation: formSchemaZod.username,
+          required: true,
+          value: "pulkit",
         },
       },
       {
@@ -45,13 +70,14 @@ export default function Login() {
         className: "block text-sm font-medium text-gray-700 w-full",
         value: "Password",
         children: {
-          value: "pulkit12",
           formElement: "input",
           type: "password",
           name: "password",
           className:
             "mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300 w-full",
           zodValidation: formSchemaZod.password,
+          required: true,
+          value: "pulkit12",
         },
       },
       {
