@@ -4,8 +4,10 @@ import { z } from "zod";
 import { BACKEND_API_BASE_URL } from "../../config";
 import Loader from "../../assets/Loader";
 import Layout from "./Layout";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
   const formSchemaZod = {
     username: z.string().min(1),
     password: z.string().min(8),
@@ -16,14 +18,10 @@ export default function Login() {
       "inline-flex flex-col justify-center items-center space-y-4 w-full bg-transparent w-full",
     onSubmit: async (event, values) => {
       event.preventDefault();
-      const res = await axios.post(
-        BACKEND_API_BASE_URL + "/api/auth/login",
-        values,
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(res.data);
+      await axios.post(BACKEND_API_BASE_URL + "/api/auth/login", values, {
+        withCredentials: true,
+      });
+      navigate("/dashboard");
     },
     children: [
       {
