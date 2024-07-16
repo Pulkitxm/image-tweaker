@@ -18,14 +18,13 @@ export default function Login() {
     preventDefault: true,
     onSubmit: async (event, values) => {
       event.preventDefault();
-      const res = await axios.post(
+      await axios.post(
         BACKEND_API_BASE_URL + "/api/auth/login",
         values,
         {
           withCredentials: true,
         }
       );
-      console.log(res.data);
     },
     children: [
       {

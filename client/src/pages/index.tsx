@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import UploadDialog from "../components/Upload";
 import DeleteImage from "../components/DeleteImage";
+import NotFound from "./NotFound";
 
 export default function Pages() {
   return (
@@ -19,6 +20,7 @@ export default function Pages() {
         <Route path="/login" element={auth("login")} />
         <Route path="/register" element={auth("signup")} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/*" element={<NotFound />} />
       </Routes>
       <SpeedDial />
       <Toaster />

@@ -104,9 +104,7 @@ export const handleDeleteImage = async (
     if (!imageUrlFromDb) {
       return response.status(404).json({ message: "Image not found" });
     }
-    console.log(matchPublicId(imageUrlFromDb));
     const publicId = matchPublicId(imageUrlFromDb)?.[1];
-    console.log(publicId);
     if (!publicId) {
       return response.status(400).json({ message: "Invalid image URL" });
     }

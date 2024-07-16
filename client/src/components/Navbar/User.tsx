@@ -12,7 +12,6 @@ export function User({
   removeCookie: (name: "token", options?: CookieSetOptions) => void;
 }) {
   function logOut() {
-    console.log("Logging out");
     removeCookie("token", {
       path: "/",
     });

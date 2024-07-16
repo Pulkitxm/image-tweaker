@@ -19,12 +19,7 @@ const Options: FormSchema = {
       zodErrors,
     });
     if (errors.length) return console.log("Form has errors", errors);
-    if (zodErrors.length)
-      return console.log(
-        "Form has Zod errors",
-        zodErrors.map((error) => error.issues)
-      );
-    console.log("Form submitted", values);
+    if (zodErrors.length) return;
   },
   children: [
     {
