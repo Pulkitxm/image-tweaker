@@ -12,7 +12,13 @@ export default function Images() {
     });
   }, [setImages]);
   return (
-    <div className="p-10 flex">
+    <div className="p-10 flex flex-wrap">
+      {images.map((image,index) => (
+        <Image key={index} image={image} />
+      ))}
+      {images.map((image,index) => (
+        <Image key={index} image={image} />
+      ))}
       {images.map((image,index) => (
         <Image key={index} image={image} />
       ))}

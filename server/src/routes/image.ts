@@ -11,7 +11,7 @@ const imageRouter = Router();
 imageRouter.use(checkToken);
 
 imageRouter.get("/", getImages);
-imageRouter.post("/", upload.single("test"), addImage);
+imageRouter.post("/", upload.single("image"), addImage);
 imageRouter.get("/:public_id", getImageById);
 
 export default imageRouter;

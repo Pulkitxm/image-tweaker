@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { IconBxHomeCircle, IconDashboardLine } from "../assets/Speedial";
+import {
+  IconBxHomeCircle,
+  IconDashboardLine,
+  IconUpload,
+} from "../assets/Speedial";
+import { useSetRecoilState } from "recoil";
+import { openUploadDialogState } from "../state/image";
 
 export default function DefaultSpeedDial() {
   const [show, setshow] = useState(false);
+  const setOpenUploadDialogState = useSetRecoilState(openUploadDialogState);
   function toggleShow() {
     setshow(!show);
   }
@@ -18,10 +25,15 @@ export default function DefaultSpeedDial() {
       link: "/dashboard",
       title: "Dashboard",
     },
+    {
+      icon: <IconUpload />,
+      onClick: () => setOpenUploadDialogState(true),
+      title: "Uplaod Image",
+    },
   ];
   return (
     <div
-      className="absolute right-6 bottom-6 group z-50 speeddial-button"
+      className="fixed right-6 bottom-6 group z-50 speeddial-button"
       onMouseLeave={() => setshow(false)}
     >
       <div
@@ -30,17 +42,24 @@ export default function DefaultSpeedDial() {
           show ? "" : "hidden"
         }`}
       >
-        {items.map((item, index) => (
-          <Link
-            to={item.link}
-            key={index}
-            type="button"
-            className="flex justify-center items-center w-16 h-16 text-gray-900 hover:text-gray-900 bg-white rounded-full border border-gray-300 shadow-sm hover:bg-gray-50  focus:outline-none relative"
-            title={item.title}
-          >
-            {item.icon}
-          </Link>
-        ))}
+        {items.map((item, index) => {
+          const props = {
+            className:
+              "flex justify-center items-center w-16 h-16 text-gray-900 hover:text-gray-900 bg-white rounded-full border border-gray-300 shadow-sm hover:bg-gray-50  focus:outline-none relative",
+            title: item.title,
+          };
+          return item.link ? (
+            <Link to={item.link} {...props} key={index}>
+              {item.icon}
+            </Link>
+          ) : (
+            item.onClick && (
+              <button {...props} onClick={item.onClick} key={index}>
+                {item.icon}
+              </button>
+            )
+          );
+        })}
       </div>
       <button
         type="button"

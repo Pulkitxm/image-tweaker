@@ -32,12 +32,18 @@ export async function getImageUrlById(
 export async function addImageToDb(
   cloudinary_url: string,
   user_id: string
-): Promise<string> {
+): Promise<{
+  id: string;
+  isPublic: boolean;
+}> {
   const dbImage = await prisma.image.create({
     data: {
       cloudinary_url,
       createdById: user_id,
     },
   });
-  return dbImage.id;
+  return {
+    id: dbImage.id,
+    isPublic: dbImage.isPublic,
+  };
 }

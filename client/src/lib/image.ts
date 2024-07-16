@@ -21,3 +21,12 @@ export async function getImage(id: string) {
   return URL.createObjectURL(resp.data);
 }
 
+export function uploadImage(
+  file: File,
+) {
+  const formData = new FormData();
+  formData.append("image", file);
+  return axios.post(BACKEND_API_BASE_URL + "/api/image", formData, {
+    withCredentials: true,
+  });
+}

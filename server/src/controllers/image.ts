@@ -34,10 +34,10 @@ export const addImage = async (request: Request, response: Response) => {
           response.status(500).json({ message: error.message });
         } else {
           if (result) {
-            const public_id = await addImageToDb(result.secure_url, user.id);
+            const imageData = await addImageToDb(result.secure_url, user.id);
             response
               .status(200)
-              .json({ message: "Upload successful", id: public_id });
+              .json({ message: "Upload successful", ...imageData });
           } else {
             response
               .status(500)
