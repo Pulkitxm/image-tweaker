@@ -16,15 +16,18 @@ export async function checkToken(
   }
   try {
     const { username } = decodeToken(token);
-    const userExists = await prisma.user.count({
-      where: { username },
+    const userExists = await prisma.user.findFirst({
+      where: {
+        username,
+      },
     });
-    if (userExists === 0) {
+    if (!userExists) {
       return resp.status(401).send({
         message: "Unauthorized Access, Please login to continue",
         status: "failed",
       });
     }
+    resp.locals.user = userExists;
     next();
   } catch (error) {
     return resp.status(401).send({

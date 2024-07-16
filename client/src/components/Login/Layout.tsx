@@ -11,7 +11,7 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
         <AuthGraphic />
       </div>
       {token && (
-        <div className="absolute right-0 z-50 w-full lg:w-[50%] h-screen flex justify-center items-center text-2xl lg:text-3xl font-bold underline">
+        <div className="absolute right-0 z-10 w-full lg:w-[50%] h-screen flex justify-center items-center text-2xl lg:text-3xl font-bold underline">
           <Link to={"/dashboard"} className="flex justify-center">
             <Alert /> You are already logged in, go to dashboard
           </Link>

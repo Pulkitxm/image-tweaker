@@ -14,7 +14,7 @@ const Navbar = () => {
     onMouseLeave: () => setOpenPopover(false),
   };
   return (
-    <nav className="fixed top-0 right-0 w-screen h-18 bg-black flex justify-between items-center px-4 lg:px-10 py-3 text-xl">
+    <nav className="fixed top-0 right-0 w-screen h-18 bg-black flex justify-between items-center px-4 lg:px-10 py-3 text-xl z-50">
       <Link to="/" className="text-primary text-xl md:text-2xl">
         ImageTweaker
       </Link>
