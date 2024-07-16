@@ -22,7 +22,7 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
         </div>
       )}
       <div
-        className={`w-full lg:w-[50%] h-screen flex flex-col justify-center items-center bg-gray-100 ${
+        className={`w-full lg:w-[50%] h-screen flex flex-col justify-center items-center bg-white ${
           token ? "blur-sm" : ""
         }`}
       >

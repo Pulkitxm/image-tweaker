@@ -6,12 +6,14 @@ import SpeedDial from "../components/SpeedDial";
 import { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import UploadDialog from "../components/Upload";
+import DeleteImage from "../components/DeleteImage";
 
 export default function Pages() {
   return (
     <>
       <Navbar />
       <UploadDialog />
+      <DeleteImage />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={auth("login")} />

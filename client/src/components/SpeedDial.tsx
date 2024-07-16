@@ -33,7 +33,7 @@ export default function DefaultSpeedDial() {
   ];
   return (
     <div
-      className="fixed right-6 bottom-6 group z-50 speeddial-button"
+      className="fixed right-6 bottom-6 group z-10 speeddial-button"
       onMouseLeave={() => setshow(false)}
     >
       <div

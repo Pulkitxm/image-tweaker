@@ -3,13 +3,20 @@ import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 import { handleManipulateImage } from "../lib/image";
 import axios from "axios";
 import { UserType } from "../schema/user";
-import { addImageToDb, getImagesFromDb, getImageUrlById } from "../db/user";
+import {
+  addImageToDb,
+  deleteImageFromDb,
+  getImagesFromDb,
+  getImageUrlById,
+} from "../db/user";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+const matchPublicId = (imageUrl: string) => imageUrl.match(/\/v\d+\/(.+)\./);
 
 export const getImages = async (request: Request, response: Response) => {
   try {
@@ -83,5 +90,35 @@ export const getImageById = async (request: Request, response: Response) => {
     response.end(buffer);
   } catch (error) {
     response.status(500).json({ error });
+  }
+};
+
+export const handleDeleteImage = async (
+  request: Request,
+  response: Response
+) => {
+  const user = response.locals.user as UserType;
+  const { public_id } = request.params;
+  try {
+    const imageUrlFromDb = await getImageUrlById(public_id, user.id);
+    if (!imageUrlFromDb) {
+      return response.status(404).json({ message: "Image not found" });
+    }
+    console.log(matchPublicId(imageUrlFromDb));
+    const publicId = matchPublicId(imageUrlFromDb)?.[1];
+    console.log(publicId);
+    if (!publicId) {
+      return response.status(400).json({ message: "Invalid image URL" });
+    }
+    const deleteImage = await cloudinary.uploader.destroy(publicId);
+    if (deleteImage.result !== "ok") {
+      return response.status(500).json({ message: "Failed to delete image" });
+    }
+    const deleteImageId = await deleteImageFromDb(public_id, user.id);
+    response
+      .status(200)
+      .json({ message: "Deletion successful", id: deleteImageId });
+  } catch (error) {
+    response.status(500).json({ message: (error as Error).message });
   }
 };

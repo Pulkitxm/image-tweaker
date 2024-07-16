@@ -6,7 +6,16 @@ export const imagesState = atom<Images>({
   default: [],
 });
 
+export const deleteImageConfigState = atom({
+  key: "imagePreviewCntrl",
+  default: {
+    open: false,
+    imageId: "",
+    imageUrl: "",
+  },
+});
+
 export const openUploadDialogState = atom<boolean>({
   key: "openUploadDialog",
-  default: true,
+  default: false,
 });

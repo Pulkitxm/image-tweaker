@@ -10,13 +10,13 @@ export default function Dashboard() {
     setNavHeight(document.getElementsByTagName("nav")[0].clientHeight);
   }, []);
   return (
-    <div style={{
+    <div className="h-screen" style={{
       paddingTop: navHeight,
     }}>
       {token ? (
         <Images />
       ) : (
-        <div className="w-screen h-screen flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center">
           <div className="bg-white p-4 rounded-md shadow-md">
             <div className="flex space-x-4 mt-4">
               <Link to={"/login"}>

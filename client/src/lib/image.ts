@@ -30,3 +30,9 @@ export function uploadImage(
     withCredentials: true,
   });
 }
+
+export function deleteImage(id: string) {
+  return axios.delete(BACKEND_API_BASE_URL + `/api/image/${id}`, {
+    withCredentials: true,
+  });
+}

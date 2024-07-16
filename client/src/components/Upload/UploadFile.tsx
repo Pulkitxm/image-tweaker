@@ -78,31 +78,28 @@ export default function UploadFile({
 
   const handleUploadImage = useCallback(async () => {
     if (!file) return toast.error("No file selected");
-    toast.promise(
-      uploadImage(file as File),
-      {
-        loading: "Uploading image...",
-        success: (res) => {
-          setImages((prev) => [
-            ...prev,
-            {
-              id: res.data.id,
-              isPublic: res.data.isPublic,
-            },
-          ]);
-          setOpen(false);
-          return "Image uploaded successfully";
-        },
-        error: (err) => {
-          if (err.response.data.message) return err.response.data.message;
-          return "Failed to upload image";
-        },
-      }
-    );
+    toast.promise(uploadImage(file as File), {
+      loading: "Uploading image...",
+      success: (res) => {
+        setImages((prev) => [
+          ...prev,
+          {
+            id: res.data.id,
+            isPublic: res.data.isPublic,
+          },
+        ]);
+        setOpen(false);
+        return "Image uploaded successfully";
+      },
+      error: (err) => {
+        if (err.response.data.message) return err.response.data.message;
+        return "Failed to upload image";
+      },
+    });
   }, [file, setImages, setOpen]);
 
   return (
-    <div className="bg-white pt-2 rounded-xl flex flex-col">
+    <div className="bg-white pt-2 rounded-xl flex flex-col w-full md:w-[500px]">
       <div className="flex justify-end mb-10 mr-2">
         <IconCloseCircle
           onClick={() => {
@@ -111,7 +108,7 @@ export default function UploadFile({
         />
       </div>
       <div
-        className="w-[500px] rounded-xl overflow-hidden relative border-2 border-gray-300 m-20 my-0 border-dashed p-6 cursor-pointer"
+        className="md:w-a rounded-xl overflow-hidden relative border-2 border-gray-300 m-3 md:m-10 my-0 border-dashed p-3 cursor-pointer"
         ref={dropZoneRef}
       >
         <input
@@ -150,12 +147,14 @@ export default function UploadFile({
           title="Preview"
         />
       </div>
-      <div className="mb-10 flex justify-end mx-20 pt-2">
+      <div className="mb-5 flex justify-end mx-auto md:mx-10 pt-2">
         <button
           className="text-white hover:text-black bg-green-500 p-3 py-2 rounded-lg"
-          onClick={handleUploadImage}
+          onClick={
+            file ? handleUploadImage : () => inputRef.current?.click()
+          }
         >
-          Upload
+          {file ? "Upload Image" : "Select Image"}
         </button>
       </div>
     </div>

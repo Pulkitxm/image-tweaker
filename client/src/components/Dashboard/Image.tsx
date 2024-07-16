@@ -9,15 +9,17 @@ import { useEffect, useState } from "react";
 import { Image } from "../../schem/image";
 import { getImage } from "../../lib/image";
 import {
+  IconBxDelete,
   IconBxsEdit,
   IconBxsFileJpg,
-  IconCardImage,
   IconDownload,
   IconPng,
   OpenInNewTab,
 } from "../../assets/Image";
 import { Link, useNavigate } from "react-router-dom";
 import NotFound from "../../assets/NotFound.png";
+import { useSetRecoilState } from "recoil";
+import { deleteImageConfigState } from "../../state/image";
 
 export default function ImageCx({ image }: { image: Image }) {
   const [loading, setLoading] = useState<null | boolean>(true);
@@ -46,6 +48,8 @@ export default function ImageCx({ image }: { image: Image }) {
           src={NotFound}
           alt="Not Found"
           className="w-full h-full aspect-square object-cover"
+          title="Image not found"
+          onContextMenu={(e) => e.preventDefault()}
         />
       ) : (
         <>
@@ -70,7 +74,8 @@ export default function ImageCx({ image }: { image: Image }) {
 
 function MenuCX({ id, imageUrl }: { id: string; imageUrl: string }) {
   const navigate = useNavigate();
-  function downlaodImage(type: "png" | "jpg" | "webp") {
+  const setDeleteImageConfig = useSetRecoilState(deleteImageConfigState);
+  function downlaodImage(type: "png" | "jpg") {
     const a = document.createElement("a");
     a.href = imageUrl;
     a.download = "image." + type;
@@ -94,6 +99,17 @@ function MenuCX({ id, imageUrl }: { id: string; imageUrl: string }) {
       <Item onClick={() => navigate("/dashboard/edit/" + id)}>
         <IconBxsEdit /> &nbsp; Edit
       </Item>
+      <Item
+        onClick={() => {
+          setDeleteImageConfig({
+            open: true,
+            imageId: id,
+            imageUrl: imageUrl,
+          });
+        }}
+      >
+        <IconBxDelete /> &nbsp; <p className="text-red-600">Delete</p>
+      </Item>
       <Separator />
       <Submenu
         label={
@@ -107,9 +123,6 @@ function MenuCX({ id, imageUrl }: { id: string; imageUrl: string }) {
         </Item>
         <Item onClick={() => downlaodImage("jpg")}>
           <IconBxsFileJpg /> &nbsp; JPG
-        </Item>
-        <Item onClick={() => downlaodImage("jpg")}>
-          <IconCardImage /> &nbsp; WEBP
         </Item>
       </Submenu>
     </Menu>

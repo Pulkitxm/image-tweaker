@@ -58,9 +58,7 @@ export async function handleLoginUser(req: Request, resp: Response) {
         status: "failed",
       });
     }
-    resp.cookie("token", getToken(foundUser.password, foundUser.username), {
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
+    resp.cookie("token", getToken(foundUser.password, foundUser.username));
     resp.status(200).send({
       message: "Successfully logged in",
       status: "success",
