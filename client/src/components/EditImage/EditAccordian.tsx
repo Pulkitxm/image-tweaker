@@ -1,9 +1,14 @@
 import axios from "axios";
 import { BACKEND_API_BASE_URL } from "../../config";
-import Accordion from "./Accordian";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
-import listOfFilters, { getDefaultValue } from "./base";
+import BasicImageManipulation from "./BasicImageManipulation";
+import { baseFilters, FiltersType } from "./base";
+import ColorAdjustments from "./ColorAdjustments";
+import FiltersEffects from "./FiltersEffect";
+import FileOperations from "./FileOperations";
+import DrawingText from "./DrawingText";
+import Copy, { IconOpenInNew } from "../../assets/Copy";
 
 const EditAccordion = ({
   loading,
@@ -18,158 +23,143 @@ const EditAccordion = ({
   imageId: string;
   url: string;
 }) => {
-  const [currTitle, setCurrTitle] = useState("");
-  const [allFilters, setAllFilters] = useState(getDefaultValue());
+  const listOfFilters = [
+    {
+      title: "Basic Image Manipulation",
+      component: BasicImageManipulation,
+    },
+    {
+      title: "Colour Adjustments",
+      component: ColorAdjustments,
+    },
+    {
+      title: "Filters & Effects",
+      component: FiltersEffects,
+    },
+    {
+      title: "Drawing and Text",
+      component: DrawingText,
+    },
+    {
+      title: "File Operations",
+      component: FileOperations,
+    },
+  ];
+  const [loadingFInalEdit, setLoadingFInalEdit] = useState(false);
+  const [filters, setFilters] = useState<FiltersType>(baseFilters);
+  const finalUrl = useMemo(() => {
+    let newFinalUrl = "";
 
+    Object.entries(filters).forEach(([key, value]) => {
+      if (
+        key == "crop" &&
+        typeof value != "number" &&
+        Object.values(value).every((val) => val != -1)
+      ) {
+        const crop = value;
+        newFinalUrl += `&crop=${crop.top},${crop.right},${crop.bottom},${crop.left}`;
+      } else if (typeof value == "number" && value != -1) {
+        newFinalUrl += `&${key}=${value}`;
+      }
+    });
+    return (
+      BACKEND_API_BASE_URL +
+      "/api/image/" +
+      imageId +
+      (newFinalUrl ? "?" + newFinalUrl : "")
+    );
+  }, [filters, imageId]);
+  const [currTitle, setCurrTitle] = useState("");
   const changeAccordionState = (title: string) => {
     setCurrTitle((prevTitle) => (prevTitle === title ? "" : title));
   };
 
-  const handleApplyFilters = useCallback(async () => {
-    if (!url) {
-      return toast.error(
-        "Please wait for the image to load before applying filters"
-      );
-    }
-    setLoading(true);
-    try {
-      const respImage = await axios.get(
-        `${BACKEND_API_BASE_URL}/api/image/${imageId}`,
-        {
-          params: {
-            width: 1000,
-            height: 1000,
-          },
-          withCredentials: true,
-          responseType: "blob",
-        }
-      );
-      const newUrl = URL.createObjectURL(respImage.data);
-      setUrl(newUrl);
-    } catch (error) {
-      toast.error("Failed to apply filters");
-    } finally {
-      setLoading(false);
-    }
-  }, [url, imageId, setLoading, setUrl]);
-
-  const handleInputChange = useCallback(
-    (
-      filterIndex: number,
-      property: string,
-      value: number | null,
-      arrayIndex?: number
-    ) => {
-      const validator = listOfFilters[filterIndex].children.find(
-        (child) => child.property === property
-      )?.validate;
-      const errorMsg = listOfFilters[filterIndex].children.find(
-        (child) => child.property === property
-      )?.error;
-      const res = validator ? validator(value?.toString() ?? "") : true;
-      if (!res) return errorMsg && toast.error(errorMsg);
-      setAllFilters((prevFilters) => {
-        const newFilters = [...prevFilters];
-        if (
-          arrayIndex !== undefined &&
-          Array.isArray(newFilters[filterIndex].values[property])
-        ) {
-          (newFilters[filterIndex].values[property] as number[])[arrayIndex] =
-            value ?? 0;
-        } else {
-          newFilters[filterIndex].values[property] = value ?? 0;
-        }
-        return newFilters;
-      });
-    },
-    []
-  );
-
-  const renderFilterInputs = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (filterIndex: number, child: any, filter: string) => {
-      if (Array.isArray(child.vals)) {
-        // eslint-disable-next-line
-        return (
-          <div className="my-1">
-            <h1>{child.property}</h1>
-            {child.vals.map((_, arrayIndex: number) => (
-              <div key={arrayIndex}>
-                <label htmlFor={`${filter}${child.property}${arrayIndex}`}>
-                  {
-                    listOfFilters[filterIndex].children.find(
-                      (item) => item.property === child.property
-                    )?.vals[arrayIndex]
-                  }
-                </label>
-                <input
-                  type="number"
-                  id={`${filter}${child.property}${arrayIndex}`}
-                  value={
-                    (
-                      allFilters[filterIndex].values[child.property] as number[]
-                    )[arrayIndex] ?? ""
-                  }
-                  onChange={(e) =>
-                    handleInputChange(
-                      filterIndex,
-                      child.property,
-                      Number(e.target.value),
-                      arrayIndex
-                    )
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        );
-      } else {
-        return (
-          <div
-            key={child.property}
-            className="flex items-center justify-center space-x-3"
-          >
-            <label htmlFor={`${filter}${child.property}`} className="w-24">
-              {child.property}
-            </label>
-            <input
-              type="number"
-              className="w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-900 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
-              id={`${filter}${child.property}`}
-              value={
-                (allFilters[filterIndex].values[child.property] as number) ?? ""
-              }
-              onChange={(e) =>
-                handleInputChange(
-                  filterIndex,
-                  child.property,
-                  Number(e.target.value)
-                )
-              }
-            />
-          </div>
+  const handleApplyFilters = useCallback(
+    async (reset = false) => {
+      if (!url) {
+        return toast.error(
+          "Please wait for the image to load before applying filters"
         );
       }
+      if (loading || loadingFInalEdit)
+        return toast.error(
+          "Please wait for the previous operation to complete"
+        );
+      if (!reset && !finalUrl) return toast.error("No filters selected");
+      setLoading(true);
+      try {
+        setLoadingFInalEdit(true);
+        const respImage = await axios.get(
+          reset
+            ? `${BACKEND_API_BASE_URL}/api/image/${imageId}`
+            : `${BACKEND_API_BASE_URL}/api/image/${imageId}?${finalUrl}`,
+          {
+            withCredentials: true,
+            responseType: "blob",
+          }
+        );
+        const newUrl = URL.createObjectURL(respImage.data);
+        setUrl(newUrl);
+        reset && setFilters(baseFilters);
+      } catch (error) {
+        toast.error("Failed to apply filters");
+      } finally {
+        setLoading(false);
+        setLoadingFInalEdit(false);
+      }
     },
-    [allFilters, handleInputChange]
+    [url, loading, loadingFInalEdit, finalUrl, setLoading, imageId, setUrl]
   );
 
   return (
-    <div className="w-[50%] h-full border-l-2 p-10 z-10 bg-white overflow-y-scroll">
-      <button onClick={handleApplyFilters}>Apply filters</button>
+    <div className="w-[50%] max-w-[50%] h-full border-l-2 p-10 z-10 bg-white overflow-y-scroll">
+      <h1 className="text-2xl font-bold">Edit Image</h1>
       <br />
-      {listOfFilters.map((item, filterIndex) => (
-        <Accordion
-          title={item.filter}
-          changeAccordionState={changeAccordionState}
-          currTitle={currTitle}
-          key={filterIndex}
-        >
-          {item.children.map((child) =>
-            renderFilterInputs(filterIndex, child, item.filter)
-          )}
-        </Accordion>
-      ))}
+      <div className="w-full border-2 border-black bg-white px-3 py-1 text-base font-semibold text-black min-h-10 mb-4">
+        <p>{finalUrl}</p>
+        <hr className="bg-black h-1 my-3" />
+        <div className="flex justify-end space-x-2">
+          <Copy
+            onCopy={() => {
+              navigator.clipboard.writeText(finalUrl);
+              toast.success("Copied to clipboard");
+            }}
+          />
+          <IconOpenInNew
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => window.open(finalUrl, "_blank")}
+          />
+        </div>
+      </div>
+      <div className="flex space-x-5">
+        <button onClick={() => handleApplyFilters()} className="relative">
+          <span className="absolute top-0 left-0 mt-1 ml-1 h-full w-full rounded bg-black"></span>
+          <span className="fold-bold relative inline-block h-full w-full rounded border-2 border-black bg-white px-3 py-1 text-base font-bold text-black transition duration-100 hover:bg-primary hover:text-gray-900">
+            Apply Filters
+          </span>
+        </button>
+        <button onClick={() => handleApplyFilters(true)} className="relative">
+          <span className="absolute top-0 left-0 mt-1 ml-1 h-full w-full rounded bg-black"></span>
+          <span className="fold-bold relative inline-block h-full w-full rounded border-2 border-black bg-white px-3 py-1 text-base font-bold text-black transition duration-100 hover:bg-primary hover:text-gray-900">
+            Reset Filters
+          </span>
+        </button>
+      </div>
+      <br />
+      {listOfFilters.map((item, filterIndex) => {
+        const Component = item.component;
+        return (
+          <Component
+            key={filterIndex}
+            title={item.title}
+            changeAccordionState={changeAccordionState}
+            currTitle={currTitle}
+            filterIndex={filterIndex}
+            filters={filters}
+            setFilters={setFilters}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -210,3 +210,62 @@ export function getDefaultValue() {
   });
   return defaultValues;
 }
+
+export type FiltersType = {
+  rotate: number;
+  width: number;
+  height: number;
+  crop: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+  flip: number;
+  xflip: number;
+  yflip: number;
+  brightness: number;
+  contrast: number;
+  dither565: number;
+  greyscale: number;
+  invert: number;
+  normalize: number;
+  posterize: number;
+  sepia: number;
+  fade: number;
+  blur: number;
+  gaussian: number;
+  pixelate: number;
+  circle: number;
+  quality: number;
+};
+
+
+export const baseFilters: FiltersType = {
+  rotate: -1,
+  width: -1,
+  height: -1,
+  crop: {
+    top: -1,
+    right: -1,
+    bottom: -1,
+    left: -1,
+  },
+  flip: -1,
+  xflip: -1,
+  yflip: -1,
+  brightness: -1,
+  contrast: -1,
+  dither565: -1,
+  greyscale: -1,
+  invert: -1,
+  normalize: -1,
+  posterize: -1,
+  sepia: -1,
+  fade: -1,
+  blur: -1,
+  gaussian: -1,
+  pixelate: -1,
+  circle: -1,
+  quality: -1,
+};
