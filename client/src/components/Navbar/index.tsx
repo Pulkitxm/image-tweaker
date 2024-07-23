@@ -37,7 +37,7 @@ const Navbar = () => {
             Login
           </NavLink>
           <p className="text-white font-semibold">/</p>
-          <NavLink to="/login" className="text-white font-semibold">
+          <NavLink to="/register" className="text-white font-semibold">
             Register
           </NavLink>
         </div>

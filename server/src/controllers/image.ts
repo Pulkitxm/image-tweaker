@@ -6,9 +6,14 @@ import { UserType } from "../schema/user";
 import {
   addImageToDb,
   deleteImageFromDb,
+  getAnyImageUrlById,
+  getImagePrivacyById,
   getImagesFromDb,
   getImageUrlById,
+  getNumOfImages,
+  updateImagePrivacyToDb,
 } from "../db/user";
+import { checkToken } from "../lib/user";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -33,6 +38,15 @@ export const addImage = async (request: Request, response: Response) => {
   try {
     if (!request.file) {
       return response.status(400).json({ message: "No file uploaded" });
+    }
+
+    const numOfImages = await getNumOfImages(user.id);
+    console.log(numOfImages);
+    if (numOfImages >= 5) {
+      return response.status(400).json({
+        message:
+          "You have reached the maximum number of images, either delete an image or make a new account",
+      });
     }
 
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -61,12 +75,19 @@ export const addImage = async (request: Request, response: Response) => {
 
 export const getImageById = async (request: Request, response: Response) => {
   try {
-    const user = response.locals.user as UserType;
     const { public_id } = request.params;
     const searchParams = request.query;
-    const selectedImgUrl = await getImageUrlById(public_id, user.id);
+    const selectedImg = await getAnyImageUrlById(public_id);
+    const selectedImgUrl = selectedImg.imageUrl;
+    const isPublic = selectedImg.isPublic;
     if (!selectedImgUrl) {
       return response.status(404).json({ message: "Image not found" });
+    }
+    if (!isPublic) {
+      const userId = await checkToken(request, response);
+      if (!userId || userId !== selectedImg.createdById) {
+        return response.status(401).json({ message: "Unauthorized Access" });
+      }
     }
     const imageResponse = await axios.get(selectedImgUrl, {
       responseType: "arraybuffer",
@@ -116,6 +137,58 @@ export const handleDeleteImage = async (
     response
       .status(200)
       .json({ message: "Deletion successful", id: deleteImageId });
+  } catch (error) {
+    response.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const handleGetImagePrivacyStatus = async (
+  request: Request,
+  response: Response
+) => {
+  const user = response.locals.user as UserType;
+  const { public_id } = request.params;
+  try {
+    const isPublic = await getImagePrivacyById(public_id, user.id);
+    if (isPublic != true && isPublic != false) {
+      return response.status(404).json({ message: "Image not found" });
+    }
+    response.status(200).json({ isPublic });
+  } catch (error) {
+    response.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const handleChangeImagePrivacy = async (
+  request: Request,
+  response: Response
+) => {
+  const user = response.locals.user as UserType;
+  const { public_id } = request.params;
+  console.log(request.body);
+  const { isPublic } = request.body;
+  if (isPublic == undefined) {
+    return response
+      .status(400)
+      .json({ message: "Please provide isPublic in the request body" });
+  }
+  try {
+    const imageUrlFromDb = await getImageUrlById(public_id, user.id);
+    if (!imageUrlFromDb) {
+      return response.status(404).json({ message: "Image not found" });
+    }
+    const updatedImage = await updateImagePrivacyToDb(
+      public_id,
+      isPublic,
+      user.id
+    );
+    if (!updatedImage) {
+      return response.status(500).json({ message: "Failed to update privacy" });
+    }
+
+    response
+      .status(200)
+      .json({ message: "Privacy updated successfully", success: true });
   } catch (error) {
     response.status(500).json({ message: (error as Error).message });
   }

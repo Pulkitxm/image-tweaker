@@ -1,11 +1,11 @@
 import useForm from "useeform";
 import axios from "axios";
 import { z } from "zod";
-import { BACKEND_API_BASE_URL } from "../../config";
 import Loader from "../../assets/Loader";
 import Layout from "./Layout";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { BACKEND_URL } from "../../lib/constants";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,13 +23,13 @@ export default function Login() {
         return console.error(zodErrors, errors);
 
       toast.promise(
-        axios.post(BACKEND_API_BASE_URL + "/api/auth/login", values, {
+        axios.post(BACKEND_URL + "/api/auth/login", values, {
           withCredentials: true,
         }),
         {
           loading: "Logging in...",
           success: () => {
-            navigate("/dashboard");
+            navigate("/");
             return "Logged in successfully";
           },
           error: (err) => {
@@ -61,7 +61,6 @@ export default function Login() {
             "mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300 w-full",
           zodValidation: formSchemaZod.username,
           required: true,
-          value: "pulkit",
         },
       },
       {
@@ -77,7 +76,6 @@ export default function Login() {
             "mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300 w-full",
           zodValidation: formSchemaZod.password,
           required: true,
-          value: "pulkit12",
         },
       },
       {

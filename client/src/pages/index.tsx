@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./Home";
 import auth from "./Auth";
 import Dashboard from "../components/Dashboard";
 import SpeedDial from "../components/SpeedDial";
@@ -17,11 +16,10 @@ export default function Pages() {
       <UploadDialog />
       <DeleteImage />
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={auth("login")} />
         <Route path="/register" element={auth("signup")} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/edit/:imageId" element={<EditImage />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/edit/:imageId" element={<EditImage />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
       <SpeedDial />

@@ -10,9 +10,12 @@ export default function Dashboard() {
     setNavHeight(document.getElementsByTagName("nav")[0].clientHeight);
   }, []);
   return (
-    <div className="h-screen" style={{
-      paddingTop: navHeight,
-    }}>
+    <div
+      className="h-screen"
+      style={{
+        paddingTop: token ? navHeight : 0,
+      }}
+    >
       {token ? (
         <Images />
       ) : (

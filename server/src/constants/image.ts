@@ -7,6 +7,7 @@ import {
     checkValbetween0and1,
     checkValbetweenminus1and1,
     greaterThan0,
+    checkValbetween0and100,
   } from "../schema/image";
 
 export const sortQueryParamnsIndex = [
@@ -39,5 +40,5 @@ export const sortQueryParamnsIndex = [
   { property: "circle", type: checkIfPresent }, // url: /image?circle any
 
   // File Operations
-  { property: "quality", type: checkNumStr }, // url: /image?quality=0.5
+  { property: "quality", type: checkValbetween0and100 }, // url: /image?quality=0.5
 ];

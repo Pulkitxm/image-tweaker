@@ -23,7 +23,7 @@ export default function Quality({
               quality: -1,
             }));
           }
-          if (Number(e.target.value) === 0 || Number(e.target.value) === 1) {
+          if (Number(e.target.value) >= 0 || Number(e.target.value) <= 100) {
             return setFilters((prev) => ({
               ...prev,
               quality: Number(e.target.value),

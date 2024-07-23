@@ -1,5 +1,4 @@
 import axios from "axios";
-import { BACKEND_API_BASE_URL } from "../../config";
 import { useState, useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
 import BasicImageManipulation from "./BasicImageManipulation";
@@ -9,6 +8,8 @@ import FiltersEffects from "./FiltersEffect";
 import FileOperations from "./FileOperations";
 import DrawingText from "./DrawingText";
 import Copy, { IconOpenInNew } from "../../assets/Copy";
+import { BACKEND_URL } from "../../lib/constants";
+import PublicToggle from "./PublicToggle";
 
 const EditAccordion = ({
   loading,
@@ -63,7 +64,7 @@ const EditAccordion = ({
       }
     });
     return (
-      BACKEND_API_BASE_URL +
+      BACKEND_URL +
       "/api/image/" +
       imageId +
       (newFinalUrl ? "?" + newFinalUrl : "")
@@ -73,7 +74,6 @@ const EditAccordion = ({
   const changeAccordionState = (title: string) => {
     setCurrTitle((prevTitle) => (prevTitle === title ? "" : title));
   };
-
   const handleApplyFilters = useCallback(
     async (reset = false) => {
       if (!url) {
@@ -91,8 +91,8 @@ const EditAccordion = ({
         setLoadingFInalEdit(true);
         const respImage = await axios.get(
           reset
-            ? `${BACKEND_API_BASE_URL}/api/image/${imageId}`
-            : `${BACKEND_API_BASE_URL}/api/image/${imageId}?${finalUrl}`,
+            ? `${BACKEND_URL}/api/image/${imageId}`
+            : `${BACKEND_URL}/api/image/${imageId}?${finalUrl}`,
           {
             withCredentials: true,
             responseType: "blob",
@@ -115,7 +115,7 @@ const EditAccordion = ({
     <div className="w-[50%] max-w-[50%] h-full border-l-2 p-10 z-10 bg-white overflow-y-scroll">
       <h1 className="text-2xl font-bold">Edit Image</h1>
       <br />
-      <div className="w-full border-2 border-black bg-white px-3 py-1 text-base font-semibold text-black min-h-10 mb-4">
+      <div className="w-full border-2 border-black bg-white px-3 py-1 text-base font-semibold text-black min-h-10 mb-4 break-all">
         <p>{finalUrl}</p>
         <hr className="bg-black h-1 my-3" />
         <div className="flex justify-end space-x-2">
@@ -144,6 +144,12 @@ const EditAccordion = ({
             Reset Filters
           </span>
         </button>
+        <label className="inline-flex items-center cursor-pointer">
+          <span className="text-sm font-medium text-gray-900 mr-2">
+            Public Image
+          </span>
+          <PublicToggle imageId={imageId} />
+        </label>
       </div>
       <br />
       {listOfFilters.map((item, filterIndex) => {

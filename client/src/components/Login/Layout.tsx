@@ -15,10 +15,10 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
       </div>
       {token && (
         <div className="absolute right-0 z-10 w-full lg:w-[50%] h-screen flex flex-col justify-center items-center text-2xl lg:text-3xl font-bold underline">
-          <Link to={"/dashboard"} className="flex justify-center">
+          <Link to={"/"} className="flex justify-center">
             <Alert /> You are already logged in, go to dashboard
           </Link>
-          <button onClick={logOut}>Logout</button>
+          <button className="underline" onClick={logOut}>Logout</button>
         </div>
       )}
       <div
@@ -29,9 +29,6 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
         <div className="max-w-md w-full p-6">
           <h1 className="text-3xl font-semibold mb-6 text-black text-center">
             Log in
-          </h1>
-          <h1 className="text-sm font-semibold mb-6 text-gray-500 text-center">
-            Join to Our Community with all time access and free{" "}
           </h1>
           {formUI}
           <div className="mt-4 text-sm text-gray-600 text-center">

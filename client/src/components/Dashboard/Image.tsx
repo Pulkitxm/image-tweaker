@@ -21,6 +21,7 @@ import NotFound from "../../assets/NotFound.png";
 import { useSetRecoilState } from "recoil";
 import { deleteImageConfigState } from "../../state/image";
 import { Item as ItemPSG } from "react-photoswipe-gallery";
+import { BACKEND_URL } from "../../lib/constants";
 
 export default function ImageCx({ image }: { image: Image }) {
   const [loading, setLoading] = useState<null | boolean>(true);
@@ -101,12 +102,12 @@ function MenuCX({ id, imageUrl }: { id: string; imageUrl: string }) {
       <Separator />
       <Item
         onClick={() => {
-          window.open(imageUrl, "_blank");
+          window.open(BACKEND_URL + "/api/image/" + id, "_blank");
         }}
       >
         <OpenInNewTab /> &nbsp; Open in new tab
       </Item>
-      <Item onClick={() => navigate("/dashboard/edit/" + id)}>
+      <Item onClick={() => navigate("/edit/" + id)}>
         <IconBxsEdit /> &nbsp; Edit
       </Item>
       <Item

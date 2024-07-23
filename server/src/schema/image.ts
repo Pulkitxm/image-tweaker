@@ -41,7 +41,16 @@ export const checkValbetween0and1 = checkNumStr.transform((val) => {
   if (val === null) {
     return null;
   }
-  if (val < 0 || val > 1) {
+  if (val <= 0 || val >= 1) {
+    return null;
+  }
+  return val;
+});
+export const checkValbetween0and100 = checkNumStr.transform((val) => {
+  if (val === null) {
+    return null;
+  }
+  if (val < 0 || val >= 100) {
     return null;
   }
   return val;

@@ -3,16 +3,15 @@ import morgan from "morgan";
 import cors from "cors";
 import routesHandler from "./routes";
 import cookieParser from "cookie-parser";
-
-import dotenv from "dotenv";
-dotenv.config();
+import prisma from "./client";
+import { CLIENT_URL } from "./lib/constants";
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: CLIENT_URL,
     credentials: true,
   })
 );
@@ -23,7 +22,9 @@ app.use("/", routesHandler);
 
 const PORT = process.env.PORT || 3000;
 app
-  .listen(PORT, () => {
+  .listen(PORT, async () => {
+    await prisma.$connect();
+    console.log("Database connected");
     console.log("App is running at PORT:", PORT);
   })
   .on("error", (error) => {

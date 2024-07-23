@@ -1,24 +1,26 @@
 import { useEffect, useState } from "react";
 import DraggableImage from "./DraggableImage";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import EditAccordian from "./EditAccordian";
 import GridBg from "../../assets/grid.png";
 import { getImage } from "../../lib/image";
+import { useCookies } from "react-cookie";
 
 export default function EditImage() {
   const { imageId } = useParams();
   const [url, setUrl] = useState("");
   const [navHeight, setNavHeight] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [{ token }] = useCookies(["token"]);
   useEffect(() => {
     setNavHeight(document.getElementsByTagName("nav")[0].clientHeight);
   }, []);
   useEffect(() => {
-    if (!imageId) return;
+    if (!imageId || !token) return;
     getImage(imageId).then((url) => setUrl(url));
-  }, [imageId]);
+  }, [imageId, token]);
   if (imageId)
-    return (
+    return token ? (
       <div
         className="w-screen h-screen flex overflow-hidden"
         style={{
@@ -43,6 +45,23 @@ export default function EditImage() {
           imageId={imageId}
           url={url}
         />
+      </div>
+    ) : (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="bg-white p-4 rounded-md shadow-md">
+          <div className="flex space-x-4 mt-4">
+            <Link to={"/login"}>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
+                Login
+              </button>
+            </Link>
+            <Link to={"/register"}>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
+                Register
+              </button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
 }

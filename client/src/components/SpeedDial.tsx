@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  IconBxHomeCircle,
-  IconDashboardLine,
-  IconUpload,
-} from "../assets/Speedial";
+import { IconBxHomeCircle, IconLogout, IconUpload } from "../assets/Speedial";
 import { useSetRecoilState } from "recoil";
 import { openUploadDialogState } from "../state/image";
+import { useCookies } from "react-cookie";
 
 export default function DefaultSpeedDial() {
+  const [_, __, removeCookies] = useCookies(["token"]);
   const [show, setshow] = useState(false);
   const setOpenUploadDialogState = useSetRecoilState(openUploadDialogState);
   function toggleShow() {
@@ -21,14 +19,14 @@ export default function DefaultSpeedDial() {
       title: "Home",
     },
     {
-      icon: <IconDashboardLine />,
-      link: "/dashboard",
-      title: "Dashboard",
-    },
-    {
       icon: <IconUpload />,
       onClick: () => setOpenUploadDialogState(true),
       title: "Uplaod Image",
+    },
+    {
+      icon: <IconLogout />,
+      onClick: () => removeCookies("token"),
+      title: "Logout",
     },
   ];
   return (

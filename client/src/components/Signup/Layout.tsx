@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import AuthGraphic from "../../assets/AuthGraphic";
-import Alert from "../../assets/Alert";
 import { useCookies } from "react-cookie";
+import Alert from "../../assets/Alert";
 
 export default function Layout({ formUI }: { formUI: JSX.Element }) {
   const [{ token }, _, removeCookies] = useCookies(["token"]);
@@ -14,11 +14,11 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
         <AuthGraphic />
       </div>
       {token && (
-        <div className="absolute right-0 z-10 w-full lg:w-[50%] h-screen flex justify-center items-center text-2xl lg:text-3xl font-bold underline">
-          <Link to={"/dashboard"} className="flex justify-center">
+        <div className="absolute right-0 z-10 w-full lg:w-[50%] h-screen flex flex-col justify-center items-center text-2xl lg:text-3xl font-bold underline">
+          <Link to={"/"} className="flex justify-center">
             <Alert /> You are already logged in, go to dashboard
           </Link>
-          <button onClick={logOut}>Logout</button>
+          <button className="underline" onClick={logOut}>Logout</button>
         </div>
       )}
       <div
@@ -28,17 +28,14 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
       >
         <div className="max-w-md w-full p-6">
           <h1 className="text-3xl font-semibold mb-6 text-black text-center">
-            Register
-          </h1>
-          <h1 className="text-sm font-semibold mb-6 text-gray-500 text-center">
-            Join to Our Community with all time access and free{" "}
+            Sign Up
           </h1>
           {formUI}
           <div className="mt-4 text-sm text-gray-600 text-center">
             <p>
               Already have an account?{" "}
-              <Link to="/login" className="text-black hover:underline">
-                Login here
+              <Link to="/register" className="text-black hover:underline">
+                Register here
               </Link>
             </p>
           </div>

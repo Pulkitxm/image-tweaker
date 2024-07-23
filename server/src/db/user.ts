@@ -13,6 +13,37 @@ export async function getImagesFromDb(user_id: string) {
   return images;
 }
 
+export async function getNumOfImages(user_id: string) {
+  const numOfImages = await prisma.image.count({
+    where: {
+      createdById: user_id,
+    },
+  });
+  return numOfImages;
+}
+
+export async function getAnyImageUrlById(public_id: string): Promise<{
+  imageUrl: string | undefined;
+  isPublic: boolean | undefined;
+  createdById: string | undefined;
+}> {
+  const dbImage = await prisma.image.findFirst({
+    where: {
+      id: public_id,
+    },
+    select: {
+      cloudinary_url: true,
+      isPublic: true,
+      createdById: true,
+    },
+  });
+  return {
+    imageUrl: dbImage?.cloudinary_url,
+    isPublic: dbImage?.isPublic,
+    createdById: dbImage?.createdById,
+  };
+}
+
 export async function getImageUrlById(
   public_id: string,
   user_id: string
@@ -27,6 +58,22 @@ export async function getImageUrlById(
     },
   });
   return dbImage?.cloudinary_url;
+}
+
+export async function getImagePrivacyById(
+  public_id: string,
+  user_id: string
+): Promise<boolean | undefined> {
+  const dbImage = await prisma.image.findFirst({
+    where: {
+      id: public_id,
+      createdById: user_id,
+    },
+    select: {
+      isPublic: true,
+    },
+  });
+  return dbImage?.isPublic;
 }
 
 export async function addImageToDb(
@@ -59,4 +106,21 @@ export async function deleteImageFromDb(
     },
   });
   return deletedImage.id;
+}
+
+export async function updateImagePrivacyToDb(
+  imageId: string,
+  isPublic: boolean,
+  user_id: string
+): Promise<string> {
+  const updatedImage = await prisma.image.update({
+    where: {
+      id: imageId,
+      createdById: user_id,
+    },
+    data: {
+      isPublic,
+    },
+  });
+  return updatedImage.id;
 }

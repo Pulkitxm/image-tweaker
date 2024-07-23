@@ -58,12 +58,16 @@ export async function handleLoginUser(req: Request, resp: Response) {
         status: "failed",
       });
     }
-    resp.cookie("token", getToken(foundUser.password, foundUser.username));
+    resp.cookie("token", getToken(foundUser.password, foundUser.username), {
+      sameSite: "none",
+      secure: true,
+    });
     resp.status(200).send({
       message: "Successfully logged in",
       status: "success",
     });
   } catch (e) {
+    console.log(e);
     return resp.status(500).send({
       message: "Internal Server Error",
       status: "failed",
