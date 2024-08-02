@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "serve dist",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -24,6 +25,7 @@
     "react-photoswipe-gallery": "^3.0.1",
     "react-router-dom": "^6.24.1",
     "recoil": "^0.7.7",
+    "serve": "^14.2.3",
     "useeform": "^1.0.8",
     "zod": "^3.23.8"
   },

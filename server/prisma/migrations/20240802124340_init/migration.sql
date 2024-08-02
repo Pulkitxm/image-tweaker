@@ -11,8 +11,9 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Image" (
     "id" TEXT NOT NULL,
-    "cloudinary_url" TEXT NOT NULL,
+    "imageKey" TEXT NOT NULL,
     "createdById" TEXT NOT NULL,
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
 );

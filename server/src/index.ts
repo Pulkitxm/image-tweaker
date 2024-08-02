@@ -4,7 +4,7 @@ import cors from "cors";
 import routesHandler from "./routes";
 import cookieParser from "cookie-parser";
 import prisma from "./client";
-import { CLIENT_URL } from "./lib/constants";
+import { CLIENT_URL, PORT as PortToRun } from "./lib/constants";
 
 const app = express();
 app.use(express.json());
@@ -20,7 +20,7 @@ app.use(
 );
 app.use("/", routesHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = PortToRun || 3000;
 app
   .listen(PORT, async () => {
     await prisma.$connect();

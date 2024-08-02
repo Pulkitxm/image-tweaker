@@ -4,7 +4,7 @@ import {
   HASH_SALT,
   HASH_SUFFIX,
   JWT_SECRET,
-} from "../constants/env";
+} from "../lib/constants";
 import { TokenType } from "../schema/user";
 
 const hashPass = (pass: string): string => {
