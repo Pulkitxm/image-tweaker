@@ -22,29 +22,40 @@ export async function getNumOfImages(user_id: string) {
   return numOfImages;
 }
 
-export async function getAnyImageUrlById(public_id: string): Promise<{
-  imageUrl: string | undefined;
+export async function getAnyImageKeyById(public_id: string): Promise<{
+  imageKey: string | undefined;
   isPublic: boolean | undefined;
   createdById: string | undefined;
+  id: string;
 }> {
   const dbImage = await prisma.image.findFirst({
     where: {
       id: public_id,
     },
     select: {
-      cloudinary_url: true,
+      id: true,
+      imageKey: true,
       isPublic: true,
       createdById: true,
     },
   });
+  if (!dbImage) {
+    return {
+      id: public_id,
+      imageKey: undefined,
+      isPublic: undefined,
+      createdById: undefined,
+    };
+  }
   return {
-    imageUrl: dbImage?.cloudinary_url,
-    isPublic: dbImage?.isPublic,
-    createdById: dbImage?.createdById,
+    id: dbImage.id,
+    imageKey: dbImage.imageKey,
+    isPublic: dbImage.isPublic,
+    createdById: dbImage.createdById,
   };
 }
 
-export async function getImageUrlById(
+export async function getImageKeyById(
   public_id: string,
   user_id: string
 ): Promise<string | undefined> {
@@ -54,10 +65,10 @@ export async function getImageUrlById(
       createdById: user_id,
     },
     select: {
-      cloudinary_url: true,
+      imageKey: true,
     },
   });
-  return dbImage?.cloudinary_url;
+  return dbImage?.imageKey;
 }
 
 export async function getImagePrivacyById(
@@ -77,7 +88,7 @@ export async function getImagePrivacyById(
 }
 
 export async function addImageToDb(
-  cloudinary_url: string,
+  imageKey: string,
   user_id: string
 ): Promise<{
   id: string;
@@ -85,7 +96,7 @@ export async function addImageToDb(
 }> {
   const dbImage = await prisma.image.create({
     data: {
-      cloudinary_url,
+      imageKey,
       createdById: user_id,
     },
   });

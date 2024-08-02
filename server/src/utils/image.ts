@@ -4,7 +4,6 @@ import { ImageManipulation } from "../schema/image";
 import { sortQueryParamnsIndex } from "../constants/image";
 
 export function sortQueryParamns(searchParams: QueryString.ParsedQs) {
-  console.log("searchParams", searchParams);
   let sortedParams: ImageManipulation[] = Array.from({
     length: sortQueryParamnsIndex.length,
   }).fill({ property: "", value: null }) as ImageManipulation[];
@@ -20,7 +19,6 @@ export function sortQueryParamns(searchParams: QueryString.ParsedQs) {
         );
         if (obj.success && obj.data != null)
           sortedParams[propIndex] = { property: key, value: obj.data };
-        console.log("obj", obj.error?.issues);
       }
     });
   sortedParams = sortedParams.filter((param) => param.value !== null);
@@ -46,9 +44,7 @@ export function manipulateImage(
   sortedParams: ImageManipulation[]
 ): Jimp {
   let { width, height } = img.bitmap;
-  console.log("manipulateImage", sortedParams);
   sortedParams.forEach((param) => {
-    console.log("param", param);
     switch (param.property) {
       case "rotate":
         img.rotate(param.value);
@@ -126,7 +122,6 @@ export function manipulateImage(
     height &&
     (width !== img.bitmap.width || height !== img.bitmap.height)
   ) {
-    console.log("resize", width, height);
     img.resize(width, height);
   }
   return img;

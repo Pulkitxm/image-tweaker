@@ -1,5 +1,5 @@
-import { Router } from "express";
-import upload from "../lib/multerConfig";
+import { NextFunction, Request, Response, Router } from "express";
+import upload, { handleMulterErrors } from "../lib/multerS3Config";
 import {
   addImage,
   getImageById,
@@ -30,7 +30,7 @@ imageRouter.use(checkToken);
 imageRouter.use(imageRateLimiter);
 
 imageRouter.get("/", getImages);
-imageRouter.post("/", upload.single("image"), addImage);
+imageRouter.post("/", upload.single("image"), handleMulterErrors, addImage);
 imageRouter.delete("/:public_id", handleDeleteImage);
 imageRouter.get("/privacy/:public_id", handleGetImagePrivacyStatus);
 imageRouter.patch("/privacy/:public_id", handleChangeImagePrivacy);

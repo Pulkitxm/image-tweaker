@@ -22,8 +22,18 @@ A comprehensive tool for optimizing images to improve performance and reduce fil
    ```bash
    git clone https://github.com/Pulkitxm/image-tweaker.git
    cd image-tweaker
+
+   // start the client
    cd client
+   npm install
+   npm run dev
+
+   // start the server
+   cd server
+   npm install
+   npm run dev
     ```
+   
 2. Using docker (**Note:** Ensure Docker is installed and running on your machine before executing the `docker compose up` command. This will build and start the necessary containers for the application. Also the .env files must be added into client and server.)
 
     ```bash

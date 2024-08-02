@@ -16,9 +16,9 @@ model User {
 }
 
 model Image {
-  id             String  @id @default(cuid())
-  cloudinary_url String
-  createdBy      User    @relation(fields: [createdById], references: [id])
-  createdById    String
-  isPublic       Boolean @default(false)
+  id          String  @id @default(cuid())
+  imageKey    String
+  createdBy   User    @relation(fields: [createdById], references: [id])
+  createdById String
+  isPublic    Boolean @default(false)
 }

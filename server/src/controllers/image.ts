@@ -1,27 +1,36 @@
 import { Request, Response } from "express";
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
-import { handleManipulateImage } from "../lib/image";
-import axios from "axios";
+import {
+  deleteImageFromS3,
+  downloadImageFromS3,
+  handleManipulateImage,
+} from "../lib/image";
 import { UserType } from "../schema/user";
 import {
   addImageToDb,
   deleteImageFromDb,
-  getAnyImageUrlById,
+  getAnyImageKeyById,
   getImagePrivacyById,
   getImagesFromDb,
-  getImageUrlById,
+  getImageKeyById,
   getNumOfImages,
   updateImagePrivacyToDb,
 } from "../db/user";
 import { checkToken } from "../lib/user";
+import {
+  AWS_S3_URL,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+  CLOUDINARY_CLOUD_NAME,
+} from "../lib/constants";
+import Jimp from "jimp";
+import { getCode, sortQueryParamns } from "../utils/image";
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: CLOUDINARY_CLOUD_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
 });
-
-const matchPublicId = (imageUrl: string) => imageUrl.match(/\/v\d+\/(.+)\./);
 
 export const getImages = async (request: Request, response: Response) => {
   try {
@@ -34,6 +43,7 @@ export const getImages = async (request: Request, response: Response) => {
 };
 
 export const addImage = async (request: Request, response: Response) => {
+  const { key: imageKey } = request.file as any;
   const user = response.locals.user as UserType;
   try {
     if (!request.file) {
@@ -41,7 +51,6 @@ export const addImage = async (request: Request, response: Response) => {
     }
 
     const numOfImages = await getNumOfImages(user.id);
-    console.log(numOfImages);
     if (numOfImages >= 5) {
       return response.status(400).json({
         message:
@@ -49,25 +58,8 @@ export const addImage = async (request: Request, response: Response) => {
       });
     }
 
-    const uploadStream = cloudinary.uploader.upload_stream(
-      async (error, result: UploadApiResponse | undefined) => {
-        if (error) {
-          response.status(500).json({ message: error.message });
-        } else {
-          if (result) {
-            const imageData = await addImageToDb(result.secure_url, user.id);
-            response
-              .status(200)
-              .json({ message: "Upload successful", ...imageData });
-          } else {
-            response
-              .status(500)
-              .json({ message: "Upload result is undefined" });
-          }
-        }
-      }
-    );
-    uploadStream.end(request.file.buffer);
+    const imageData = await addImageToDb(imageKey, user.id);
+    response.status(200).json({ message: "Upload successful", ...imageData });
   } catch (error) {
     response.status(500).json({ message: (error as Error).message });
   }
@@ -77,10 +69,11 @@ export const getImageById = async (request: Request, response: Response) => {
   try {
     const { public_id } = request.params;
     const searchParams = request.query;
-    const selectedImg = await getAnyImageUrlById(public_id);
-    const selectedImgUrl = selectedImg.imageUrl;
+    const selectedImg = await getAnyImageKeyById(public_id);
+    const selectedimageKey = selectedImg.imageKey;
+
     const isPublic = selectedImg.isPublic;
-    if (!selectedImgUrl) {
+    if (!selectedimageKey) {
       return response.status(404).json({ message: "Image not found" });
     }
     if (!isPublic) {
@@ -89,13 +82,50 @@ export const getImageById = async (request: Request, response: Response) => {
         return response.status(401).json({ message: "Unauthorized Access" });
       }
     }
-    const imageResponse = await axios.get(selectedImgUrl, {
-      responseType: "arraybuffer",
-    });
+    // try {
+
+    if (Object.keys(searchParams).length > 0) {
+      try {
+        const { code } = sortQueryParamns(searchParams);
+        const key = `filtered/${public_id}-${code}.png`;
+        const imageResponse = await downloadImageFromS3(key);
+        if (imageResponse) {
+          response.writeHead(200, {
+            "Content-Type": "image/png",
+            "Content-Length": imageResponse.ContentLength,
+          });
+          response.end(imageResponse.Body);
+          return;
+        }
+      } catch (error) {}
+    }
+
+    const imageResponse = downloadImageFromS3(selectedimageKey);
+    if (!imageResponse) {
+      return response.status(500).json({ message: "Failed to fetch image" });
+    }
+
+    const imageData = await imageResponse;
+
+    if (!imageData) {
+      return response.status(500).json({ message: "Failed to fetch image" });
+    }
+
+    if (Object.keys(searchParams).length == 0) {
+      response.writeHead(200, {
+        "Content-Type": "image/png",
+        "Content-Length": imageData.ContentLength,
+      });
+      response.end(imageData.Body);
+      return;
+    }
+
     const manipulatedImage = await handleManipulateImage(
-      imageResponse.data,
-      searchParams
+      imageData.Body as Buffer,
+      searchParams,
+      selectedImg.id
     );
+
     if (!manipulatedImage) {
       return response
         .status(500)
@@ -109,6 +139,9 @@ export const getImageById = async (request: Request, response: Response) => {
       "Content-Length": buffer.length,
     });
     response.end(buffer);
+    // } catch (error) {
+    //   response.status(500).json({ message: "Failed to fetch image" });
+    // }
   } catch (error) {
     response.status(500).json({ error });
   }
@@ -121,16 +154,12 @@ export const handleDeleteImage = async (
   const user = response.locals.user as UserType;
   const { public_id } = request.params;
   try {
-    const imageUrlFromDb = await getImageUrlById(public_id, user.id);
-    if (!imageUrlFromDb) {
+    const imageKeyFromDb = await getImageKeyById(public_id, user.id);
+    if (!imageKeyFromDb) {
       return response.status(404).json({ message: "Image not found" });
     }
-    const publicId = matchPublicId(imageUrlFromDb)?.[1];
-    if (!publicId) {
-      return response.status(400).json({ message: "Invalid image URL" });
-    }
-    const deleteImage = await cloudinary.uploader.destroy(publicId);
-    if (deleteImage.result !== "ok") {
+    const deleteImage = await deleteImageFromS3(imageKeyFromDb);
+    if (deleteImage != null) {
       return response.status(500).json({ message: "Failed to delete image" });
     }
     const deleteImageId = await deleteImageFromDb(public_id, user.id);
@@ -165,7 +194,6 @@ export const handleChangeImagePrivacy = async (
 ) => {
   const user = response.locals.user as UserType;
   const { public_id } = request.params;
-  console.log(request.body);
   const { isPublic } = request.body;
   if (isPublic == undefined) {
     return response
@@ -173,8 +201,8 @@ export const handleChangeImagePrivacy = async (
       .json({ message: "Please provide isPublic in the request body" });
   }
   try {
-    const imageUrlFromDb = await getImageUrlById(public_id, user.id);
-    if (!imageUrlFromDb) {
+    const imageKeyFromDb = await getImageKeyById(public_id, user.id);
+    if (!imageKeyFromDb) {
       return response.status(404).json({ message: "Image not found" });
     }
     const updatedImage = await updateImagePrivacyToDb(
