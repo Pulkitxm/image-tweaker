@@ -61,10 +61,14 @@ export async function handleLoginUser(req: Request, resp: Response) {
     resp.cookie("token", getToken(foundUser.password, foundUser.username), {
       sameSite: "none",
       secure: true,
+      httpOnly: false,
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      path: "/",
     });
     resp.status(200).send({
       message: "Successfully logged in",
       status: "success",
+      token: getToken(foundUser.password, foundUser.username),
     });
   } catch (e) {
     console.log(e);

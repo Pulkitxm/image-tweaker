@@ -6,9 +6,12 @@ import Layout from "./Layout";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { BACKEND_URL } from "../../lib/constants";
-
+import { useSetRecoilState } from "recoil";
+import { tokenState } from "../../state/token";
+ 
 export default function Login() {
   const navigate = useNavigate();
+  const setToken = useSetRecoilState(tokenState);
   const formSchemaZod = {
     username: z.string().min(1),
     password: z.string().min(8),
@@ -31,8 +34,10 @@ export default function Login() {
         return toast.error("Invalid credentials");
 
       toast.promise(
-        axios.post(BACKEND_URL + "/api/auth/login", values, {
-          withCredentials: true,
+        axios.post(BACKEND_URL + "/api/auth/login", values).then((res) => {
+          const token = res.data.token;
+          localStorage.setItem("token", token);
+          setToken(token);
         }),
         {
           loading: "Logging in...",

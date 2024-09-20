@@ -1,10 +1,11 @@
-import { useCookies } from "react-cookie";
 import Images from "./Images";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { tokenState } from "../../state/token";
 
 export default function Dashboard() {
-  const [{ token }] = useCookies(["token"]);
+  const token = useRecoilValue(tokenState);
   const [navHeight, setNavHeight] = useState(0);
   useEffect(() => {
     setNavHeight(document.getElementsByTagName("nav")[0].clientHeight);

@@ -3,7 +3,8 @@ import { decodeToken } from "./pass";
 import prisma from "../client";
 
 export async function checkToken(req: Request, resp: Response) {
-  const token = req.cookies.token;
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(" ")[1];
   if (!token) {
     return null;
   }

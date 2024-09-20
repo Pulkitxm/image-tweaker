@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import AuthGraphic from "../../assets/AuthGraphic";
-import { useCookies } from "react-cookie";
 import Alert from "../../assets/Alert";
+import { useRecoilState } from "recoil";
+import { tokenState } from "../../state/token";
 
 export default function Layout({ formUI }: { formUI: JSX.Element }) {
-  const [{ token }, _, removeCookies] = useCookies(["token"]);
+  const [token, setToken] = useRecoilState(tokenState);
   function logOut() {
-    removeCookies("token");
+    setToken(undefined);
+    localStorage.removeItem("token");
   }
   return (
     <div className="w-screen h-screen flex justify-center items-center">
@@ -18,7 +20,9 @@ export default function Layout({ formUI }: { formUI: JSX.Element }) {
           <Link to={"/"} className="flex justify-center">
             <Alert /> You are already logged in, go to dashboard
           </Link>
-          <button className="underline" onClick={logOut}>Logout</button>
+          <button className="underline" onClick={logOut}>
+            Logout
+          </button>
         </div>
       )}
       <div

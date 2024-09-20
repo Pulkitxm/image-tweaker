@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { IconBxHomeCircle, IconLogout, IconUpload } from "../assets/Speedial";
 import { useSetRecoilState } from "recoil";
 import { openUploadDialogState } from "../state/image";
-import { useCookies } from "react-cookie";
+import { tokenState } from "../state/token";
 
 export default function DefaultSpeedDial() {
-  const [_, __, removeCookies] = useCookies(["token"]);
+  const setCookies = useSetRecoilState(tokenState);
   const [show, setshow] = useState(false);
   const setOpenUploadDialogState = useSetRecoilState(openUploadDialogState);
   function toggleShow() {
@@ -25,7 +25,10 @@ export default function DefaultSpeedDial() {
     },
     {
       icon: <IconLogout />,
-      onClick: () => removeCookies("token"),
+      onClick: () => {
+        setCookies(undefined);
+        localStorage.removeItem("token");
+      },
       title: "Logout",
     },
   ];

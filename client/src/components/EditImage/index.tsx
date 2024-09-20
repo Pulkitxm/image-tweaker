@@ -4,14 +4,15 @@ import { Link, useParams } from "react-router-dom";
 import EditAccordian from "./EditAccordian";
 import GridBg from "../../assets/grid.png";
 import { getImage } from "../../lib/image";
-import { useCookies } from "react-cookie";
+import { useRecoilValue } from "recoil";
+import { tokenState } from "../../state/token";
 
 export default function EditImage() {
   const { imageId } = useParams();
   const [url, setUrl] = useState("");
   const [navHeight, setNavHeight] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [{ token }] = useCookies(["token"]);
+  const token = useRecoilValue(tokenState);
   useEffect(() => {
     setNavHeight(document.getElementsByTagName("nav")[0].clientHeight);
   }, []);

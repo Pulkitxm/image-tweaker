@@ -100,7 +100,9 @@ const EditAccordion = ({
             ? `${BACKEND_URL}/api/image/${imageId}`
             : `${BACKEND_URL}/api/image/${imageId}?${finalUrl}`,
           {
-            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
             responseType: "blob",
           }
         );

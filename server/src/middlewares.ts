@@ -7,7 +7,8 @@ export async function checkToken(
   resp: Response,
   next: NextFunction
 ) {
-  const token = req.cookies.token;
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(" ")[1];
   
   if (!token) {
     return resp.status(401).send({

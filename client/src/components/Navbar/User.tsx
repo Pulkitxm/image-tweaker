@@ -1,20 +1,19 @@
 import { PopoverContent } from "@material-tailwind/react";
-import { CookieSetOptions } from "universal-cookie";
+import { useSetRecoilState } from "recoil";
+import { tokenState } from "../../state/token";
 
 export function User({
   triggers,
-  removeCookie,
 }: {
   triggers: {
     onMouseEnter: () => void;
     onMouseLeave: () => void;
   };
-  removeCookie: (name: "token", options?: CookieSetOptions) => void;
 }) {
+  const setCookie = useSetRecoilState(tokenState);
   function logOut() {
-    removeCookie("token", {
-      path: "/",
-    });
+    setCookie("");
+    localStorage.removeItem("token");
   }
   return (
     // @ts-expect-error This is a popover content

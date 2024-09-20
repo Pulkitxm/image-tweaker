@@ -34,7 +34,9 @@ export default function Login() {
 
       toast.promise(
         axios.post(BACKEND_URL + "/api/auth/register", values, {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }),
         {
           loading: "Logging in...",
