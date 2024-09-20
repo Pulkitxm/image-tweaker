@@ -1,0 +1,43 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:3000"
+    depends_on:
+      - server
+    env_file:
+      - ./client/.env
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./server/.env
+
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./server/.env
+    volumes:
+      - postgres_data_dwl:/var/lib/postgresql/data
+  pgweb:
+    restart: always
+    image: sosedoff/pgweb
+    ports:
+      - "8002:8081"
+    links:
+      - postgres:postgres
+    env_file:
+      - ./server/.env
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data_dwl:

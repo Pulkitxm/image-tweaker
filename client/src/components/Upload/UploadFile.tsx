@@ -69,6 +69,23 @@ export default function UploadFile({
       };
       reader.readAsDataURL(file);
     }
+    const handlePaste = (e: ClipboardEvent) => {
+      const clipboardItems = e.clipboardData?.items;
+      if (clipboardItems) {
+        for (const item of clipboardItems) {
+          if (item.type.startsWith("image/")) {
+            const file = item.getAsFile();
+            file && checkFileAndAdd(file);
+          }
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
   }, []);
   useEffect(() => {
     window.addEventListener("keydown", (e) => {
@@ -86,6 +103,7 @@ export default function UploadFile({
           {
             id: res.data.id,
             isPublic: res.data.isPublic,
+            isOwner: true,
           },
         ]);
         setOpen(false);
@@ -150,9 +168,7 @@ export default function UploadFile({
       <div className="mb-5 flex justify-end mx-auto md:mx-10 pt-2">
         <button
           className="text-white hover:text-black bg-green-500 p-3 py-2 rounded-lg"
-          onClick={
-            file ? handleUploadImage : () => inputRef.current?.click()
-          }
+          onClick={file ? handleUploadImage : () => inputRef.current?.click()}
         >
           {file ? "Upload Image" : "Select Image"}
         </button>

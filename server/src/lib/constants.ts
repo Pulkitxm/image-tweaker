@@ -13,8 +13,10 @@ export const CLOUDINARY_CLOUD_NAME =
 export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "api_key";
 export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY;
 
-export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "access_key_id";
+export const AWS_ACCESS_KEY_ID =
+  process.env.AWS_ACCESS_KEY_ID || "access_key_id";
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET || "secret";
-export const AWS_S3_BUCKET= process.env.AWS_S3_BUCKET || "bucket";
+export const AWS_S3_BUCKET = process.env.AWS_S3_BUCKET || "bucket";
 export const AWS_REGION = process.env.AWS_REGION || "region";
 export const AWS_S3_URL = `https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com`;
+export const UPLOAD_ENV = process.env.UPLOAD_ENV || "aws";

@@ -1,6 +1,8 @@
 import prisma from "../client";
 
-export async function getImagesFromDb(user_id: string) {
+export async function getImagesFromDb(user_id: string, includAllUser: boolean) {
+  const allImages: any[] = [];
+
   const images = await prisma.image.findMany({
     where: {
       createdById: user_id,
@@ -8,9 +10,30 @@ export async function getImagesFromDb(user_id: string) {
     select: {
       id: true,
       isPublic: true,
+      createdById: true,
     },
   });
-  return images;
+  allImages.push(...images);
+
+  if (includAllUser) {
+    const allUsersImages = await prisma.image.findMany({
+      where: {
+        isPublic: true,
+      },
+      select: {
+        id: true,
+        isPublic: true,
+        createdById: true,
+      },
+    });
+    allImages.push(
+      ...allUsersImages.filter(
+        (image) => allImages.find((i) => i.id === image.id) === undefined
+      )
+    );
+  }
+  const allUniqueImages = Array.from(new Set(allImages));
+  return allUniqueImages;
 }
 
 export async function getNumOfImages(user_id: string) {

@@ -42,7 +42,14 @@ export default function ImageCx({ image }: { image: Image }) {
   }, [image.id]);
 
   return (
-    <div className="w-[200px] h-[200px] md:w-[300px] md:h-[300px] overflow-hidden rounded-xl m-2 md:m-10 shadow-custom2">
+    <div
+      className={`w-[200px] h-[200px] md:w-[300px] md:h-[300px] overflow-hidden rounded-xl m-2 md:m-10 shadow-custom2 ${
+        !loading ? (image.isOwner ? "border-green-600" : "border-none") : "border-none"
+      }`}
+      style={{
+        borderWidth: "5px",
+      }}
+    >
       {loading ? (
         <div className="w-full h-full animate-pulse bg-gray-400" />
       ) : loading === null ? (
@@ -67,7 +74,9 @@ export default function ImageCx({ image }: { image: Image }) {
                 onClick={open}
                 src={imageUrl}
                 alt="Image"
-                className="w-full h-full aspect-square object-cover scale-110 hover:scale-100 transition-transform cursor-pointer"
+                className={`w-full h-full aspect-square object-cover scale-110 hover:scale-100 transition-transform cursor-pointer border-20 ${
+                  image.isOwner ? "border-black`" : ""
+                }`}
                 onContextMenu={(e) => {
                   show({
                     event: e,
@@ -76,14 +85,22 @@ export default function ImageCx({ image }: { image: Image }) {
               />
             )}
           </ItemPSG>
-          <MenuCX id={image.id} imageUrl={imageUrl} />
+          <MenuCX id={image.id} imageUrl={imageUrl} isOwner={image.isOwner} />
         </>
       )}
     </div>
   );
 }
 
-function MenuCX({ id, imageUrl }: { id: string; imageUrl: string }) {
+function MenuCX({
+  id,
+  imageUrl,
+  isOwner,
+}: {
+  id: string;
+  imageUrl: string;
+  isOwner: boolean;
+}) {
   const navigate = useNavigate();
   const setDeleteImageConfig = useSetRecoilState(deleteImageConfigState);
   function downlaodImage(type: "png" | "jpg") {
@@ -110,17 +127,19 @@ function MenuCX({ id, imageUrl }: { id: string; imageUrl: string }) {
       <Item onClick={() => navigate("/edit/" + id)}>
         <IconBxsEdit /> &nbsp; Edit
       </Item>
-      <Item
-        onClick={() => {
-          setDeleteImageConfig({
-            open: true,
-            imageId: id,
-            imageUrl: imageUrl,
-          });
-        }}
-      >
-        <IconBxDelete /> &nbsp; <p className="text-red-600">Delete</p>
-      </Item>
+      {isOwner && (
+        <Item
+          onClick={() => {
+            setDeleteImageConfig({
+              open: true,
+              imageId: id,
+              imageUrl: imageUrl,
+            });
+          }}
+        >
+          <IconBxDelete /> &nbsp; <p className="text-red-600">Delete</p>
+        </Item>
+      )}
       <Separator />
       <Submenu
         label={

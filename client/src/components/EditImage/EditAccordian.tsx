@@ -10,6 +10,8 @@ import DrawingText from "./DrawingText";
 import Copy, { IconOpenInNew } from "../../assets/Copy";
 import { BACKEND_URL } from "../../lib/constants";
 import PublicToggle from "./PublicToggle";
+import { useRecoilValue } from "recoil";
+import { imagesState } from "../../state/image";
 
 const EditAccordion = ({
   loading,
@@ -24,6 +26,10 @@ const EditAccordion = ({
   imageId: string;
   url: string;
 }) => {
+  const images = useRecoilValue(imagesState);
+  const image = useMemo(() => {
+    return images.find((image) => image.id == imageId);
+  }, [images, imageId]);
   const listOfFilters = [
     {
       title: "Basic Image Manipulation",
@@ -144,12 +150,14 @@ const EditAccordion = ({
             Reset Filters
           </span>
         </button>
-        <label className="inline-flex items-center cursor-pointer">
-          <span className="text-sm font-medium text-gray-900 mr-2">
-            Public Image
-          </span>
-          <PublicToggle imageId={imageId} />
-        </label>
+        {image && image.isOwner && (
+          <label className="inline-flex items-center cursor-pointer">
+            <span className="text-sm font-medium text-gray-900 mr-2">
+              Public Image
+            </span>
+            <PublicToggle imageId={imageId} />
+          </label>
+        )}
       </div>
       <br />
       {listOfFilters.map((item, filterIndex) => {

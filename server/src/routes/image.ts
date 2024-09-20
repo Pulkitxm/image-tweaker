@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response, Router } from "express";
-import upload, { handleMulterErrors } from "../lib/multerS3Config";
+import { Router } from "express";
+import upload, { handleMulterErrors } from "../multerConfig";
 import {
   addImage,
   getImageById,

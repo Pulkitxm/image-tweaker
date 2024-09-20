@@ -1,5 +1,4 @@
 import {
-    ImageManipulation,
     checkNumStr,
     checkArrStr,
     checkFlip,

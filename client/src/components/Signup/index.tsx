@@ -20,8 +20,17 @@ export default function Login() {
       "inline-flex flex-col justify-center items-center space-y-4 w-full bg-transparent w-full",
     onSubmit: async (event, values, errors, zodErrors) => {
       event.preventDefault();
+      const { username, password, email } = values;
+
+      if ((password as string).length < 8)
+        return toast.error("Password must be at least 8 characters long");
+      if ((username as string).length <= 1)
+        return toast.error("Username must be at least 1 character long");
+      if ((email as string).length <= 1)
+        return toast.error("Email must be at least 1 character long");
+
       if (zodErrors.length != 0 || errors.length != 0)
-        return console.error(zodErrors, errors);
+        return toast.error("Invalid credentials");
 
       toast.promise(
         axios.post(BACKEND_URL + "/api/auth/register", values, {
