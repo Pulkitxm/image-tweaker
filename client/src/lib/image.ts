@@ -25,6 +25,15 @@ export async function getImage(id: string) {
   return URL.createObjectURL(resp.data);
 }
 
+export async function getImageDetails(id: string) {
+  const resp = await axios.get(BACKEND_URL + `/api/image/${id}/details`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  return resp.data;
+}
+
 export function uploadImage(file: File) {
   const formData = new FormData();
   formData.append("image", file);

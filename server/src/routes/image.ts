@@ -3,6 +3,7 @@ import upload, { handleMulterErrors } from "../multerConfig";
 import {
   addImage,
   getImageById,
+  getImageDetails,
   getImages,
   handleChangeImagePrivacy,
   handleDeleteImage,
@@ -25,6 +26,7 @@ const imageRateLimiter = rateLimit({
 });
 
 imageRouter.get("/:public_id", getImageById);
+imageRouter.get("/:public_id/details", getImageDetails);
 
 imageRouter.use(checkToken);
 imageRouter.use(imageRateLimiter);

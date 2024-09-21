@@ -45,12 +45,7 @@ export async function getNumOfImages(user_id: string) {
   return numOfImages;
 }
 
-export async function getAnyImageKeyById(public_id: string): Promise<{
-  imageKey: string | undefined;
-  isPublic: boolean | undefined;
-  createdById: string | undefined;
-  id: string;
-}> {
+export async function getAnyImageKeyById(public_id: string) {
   const dbImage = await prisma.image.findFirst({
     where: {
       id: public_id,
@@ -68,6 +63,7 @@ export async function getAnyImageKeyById(public_id: string): Promise<{
       imageKey: undefined,
       isPublic: undefined,
       createdById: undefined,
+      isOwner: false,
     };
   }
   return {
@@ -75,6 +71,7 @@ export async function getAnyImageKeyById(public_id: string): Promise<{
     imageKey: dbImage.imageKey,
     isPublic: dbImage.isPublic,
     createdById: dbImage.createdById,
+    isOwner: false,
   };
 }
 

@@ -19,7 +19,6 @@ export class AwsImage implements Image {
   };
 
   constructor(IMAGE_KEY: string | undefined = undefined) {
-    IMAGE_KEY && console.log("IMAGE_KEY", IMAGE_KEY);
     this.imageId = "";
     this.config = {
       AWS_ACCESS_KEY_ID: AWS_ACCESS_KEY_ID,
@@ -87,7 +86,6 @@ export class AwsImage implements Image {
       Bucket: AWS_S3_BUCKET,
       Key: this.config.IMAGE_KEY,
     };
-    console.log(params);
     return await this.s3Client.getObject(params).promise();
   }
 }

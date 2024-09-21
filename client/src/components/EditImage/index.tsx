@@ -3,9 +3,10 @@ import DraggableImage from "./DraggableImage";
 import { Link, useParams } from "react-router-dom";
 import EditAccordian from "./EditAccordian";
 import GridBg from "../../assets/grid.png";
-import { getImage } from "../../lib/image";
-import { useRecoilValue } from "recoil";
+import { getImage, getImageDetails } from "../../lib/image";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { tokenState } from "../../state/token";
+import { imagesState } from "../../state/image";
 
 export default function EditImage() {
   const { imageId } = useParams();
@@ -13,13 +14,19 @@ export default function EditImage() {
   const [navHeight, setNavHeight] = useState(0);
   const [loading, setLoading] = useState(false);
   const token = useRecoilValue(tokenState);
+  const setImages = useSetRecoilState(imagesState);
   useEffect(() => {
     setNavHeight(document.getElementsByTagName("nav")[0].clientHeight);
   }, []);
   useEffect(() => {
     if (!imageId || !token) return;
     getImage(imageId).then((url) => setUrl(url));
-  }, [imageId, token]);
+    getImageDetails(imageId).then((data) => {
+      return setImages((prev) => {
+        return [...prev, data];
+      });
+    });
+  }, [imageId, setImages, token]);
   if (imageId)
     return token ? (
       <div

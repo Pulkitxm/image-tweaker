@@ -91,8 +91,6 @@ export const getImageById = async (request: Request, response: Response) => {
   try {
     const { public_id } = request.params;
     const searchParams = request.query;
-    console.log("search params", searchParams);
-
     const selectedImg = await getAnyImageKeyById(public_id);
     const selectedimageKey = selectedImg.imageKey;
 
@@ -105,6 +103,7 @@ export const getImageById = async (request: Request, response: Response) => {
       if (!userId || userId !== selectedImg.createdById) {
         return response.status(401).json({ message: "Unauthorized Access" });
       }
+      selectedImg.isOwner = selectedImg.id === userId;
     }
     try {
       // Try to download image from S3 if image is present in S3
@@ -171,6 +170,27 @@ export const getImageById = async (request: Request, response: Response) => {
   } catch (error) {
     response.status(500).json({ error });
   }
+};
+
+export const getImageDetails = async (request: Request, response: Response) => {
+  const { public_id } = request.params;
+  const userId = await checkToken(request, response);
+  if (!userId) {
+    return response.status(401).json({ message: "Unauthorized Access" });
+  }
+  const image = await getAnyImageKeyById(public_id);
+  image.isOwner = image.createdById === userId;
+  if (!image) {
+    return response.status(404).json({ message: "Image not found" });
+  }
+  if (image.createdById !== userId) {
+    return response.status(401).json({ message: "Unauthorized Access" });
+  }
+  response.status(200).json({
+    id: image.id,
+    isPublic: image.isPublic,
+    isOwner: image.isOwner,
+  });
 };
 
 export const handleDeleteImage = async (

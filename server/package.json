@@ -15,7 +15,7 @@
     "@prisma/client": "^5.16.1",
     "aws-sdk": "^2.1666.0",
     "axios": "^1.7.2",
-    "cloudinary": "^2.2.0",
+    "cloudinary": "^2.5.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.21.0",

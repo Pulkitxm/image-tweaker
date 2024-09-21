@@ -7,14 +7,8 @@ import { v4 as uuid } from "uuid";
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const filePath = path.join(__dirname, "..", "..", "images");
-    console.log(filePath);
-
     if (!fs.existsSync(filePath)) {
       fs.mkdirSync(filePath, { recursive: true });
-    } else {
-      // show contenst of folder
-      const files = fs.readdirSync(filePath);
-      console.log(files);
     }
     cb(null, filePath);
   },

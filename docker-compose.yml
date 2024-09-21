@@ -1,20 +1,20 @@
 services:
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    ports:
-      - "5173:3000"
-    depends_on:
-      - server
-    env_file:
-      - ./client/.env
+  # client:
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5173:3000"
+  #   depends_on:
+  #     - server
+  #   env_file:
+  #     - ./client/.env
 
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3000"
     env_file:
       - ./server/.env
