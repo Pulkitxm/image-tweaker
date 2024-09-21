@@ -24,8 +24,8 @@ export default function Images() {
     <div
       className={`flex flex-wrap ${
         loading || images.length === 0
-          ? "flex-col justify-center items-center h-full"
-          : "m-5 "
+          ? "flex-col justify-center items-center h-full w-full"
+          : "m-5 justify-center items-center"
       }`}
     >
       {loading ? (

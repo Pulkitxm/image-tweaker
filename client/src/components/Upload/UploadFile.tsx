@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IconCloseCircle } from "../../assets/Close";
 import { SetterOrUpdater, useSetRecoilState } from "recoil";
@@ -18,6 +18,23 @@ export default function UploadFile({
   const [file, setfile] = useState<File | null>(null);
   const setImages = useSetRecoilState(imagesState);
 
+  const fileSize = useMemo(() => {
+    if (file) {
+      const sizeInBytes = file.size;
+      const formatFileSize = (size: number) => {
+        const units = ["B", "KB", "MB"];
+        let index = 0;
+        while (size >= 1024 && index < units.length - 1) {
+          size /= 1024;
+          index++;
+        }
+        return `${size.toFixed(2)} ${units[index]}`;
+      };
+      return formatFileSize(sizeInBytes);
+    }
+    return null;
+  }, [file]);
+
   useEffect(() => {
     const dropzone = dropZoneRef.current;
     const input = inputRef.current;
@@ -35,9 +52,9 @@ export default function UploadFile({
     });
 
     function checkFileAndAdd(addfile: File) {
-      const allowedTypes = ["image/jpeg", "image/png"];
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
       if (addfile && allowedTypes.includes(addfile.type)) {
-        if (addfile.size <= 10 * 1024 * 1024) displayPreview(addfile);
+        if (addfile.size <= 15 * 1024 * 1024) displayPreview(addfile);
         else toast.error("File size is too large");
       } else {
         console.error("Invalid file type");
@@ -164,6 +181,12 @@ export default function UploadFile({
           ref={previewImgRef}
           title="Preview"
         />
+        {/* diplsay image size */}
+        {fileSize && (
+          <div className="flex items-center justify-center">
+            <p className="text-black text-lg">{fileSize}</p>
+          </div>
+        )}
       </div>
       <div className="mb-5 flex justify-end mx-auto md:mx-10 pt-2">
         <button

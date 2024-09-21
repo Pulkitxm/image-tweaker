@@ -19,7 +19,21 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const fileFilter = (req: Request, file: Express.Multer.File, cb: Function) => {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only .png, .jpg and .jpeg format allowed!"), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 15 * 1024 * 1024,
+  },
+});
 
 export async function handleMulterErrors(
   err: Error,
@@ -38,3 +52,4 @@ export async function handleMulterErrors(
 }
 
 export default upload;
+
