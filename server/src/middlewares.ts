@@ -9,7 +9,6 @@ export async function checkToken(
 ) {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
-  
   if (!token) {
     return resp.status(401).send({
       message: "Unauthorized Access, Please login to continue",

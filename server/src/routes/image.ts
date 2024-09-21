@@ -29,7 +29,7 @@ imageRouter.get("/:public_id", getImageById);
 imageRouter.get("/:public_id/details", getImageDetails);
 
 imageRouter.use(checkToken);
-imageRouter.use(imageRateLimiter);
+// imageRouter.use(imageRateLimiter);
 
 imageRouter.get("/", getImages);
 imageRouter.post("/", upload.single("image"), handleMulterErrors, addImage);

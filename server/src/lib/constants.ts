@@ -11,7 +11,7 @@ export const JWT_SECRET = process.env.JWT_SECRET || "secret";
 export const CLOUDINARY_CLOUD_NAME =
   process.env.CLOUDINARY_CLOUD_NAME || "cloud_name";
 export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "api_key";
-export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY;
+export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "api_secret";
 
 export const AWS_ACCESS_KEY_ID =
   process.env.AWS_ACCESS_KEY_ID || "access_key_id";

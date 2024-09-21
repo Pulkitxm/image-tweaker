@@ -1,7 +1,7 @@
 import Jimp from "jimp";
 
 export default abstract class Image {
-  public imageId: string = "";
+  public imageId: string | undefined = undefined;
   abstract uploadImage({
     code,
     dbId,
@@ -11,6 +11,6 @@ export default abstract class Image {
     dbId: string;
     code: string;
   }): Promise<any>;
-  abstract deleteImage(imageKey: string): Promise<void>;
+  abstract deleteImage(imageKey: string): Promise<any>;
   abstract downloadImage(imageKey: string): Promise<any>;
 }

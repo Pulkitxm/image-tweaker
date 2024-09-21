@@ -6,6 +6,13 @@ import {
 } from "../../lib/constants";
 import Image from "./index";
 import Jimp from "jimp";
+import streamifier from "streamifier";
+
+console.log({
+  cloud_name: CLOUDINARY_CLOUD_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
+});
 
 cloudinary.config({
   cloud_name: CLOUDINARY_CLOUD_NAME,
@@ -14,9 +21,9 @@ cloudinary.config({
 });
 
 export class CloudinaryImage implements Image {
-  public imageId: string;
-  constructor() {
-    this.imageId = "";
+  public imageId: string | undefined = undefined;
+  constructor(imageId?: string) {
+    this.imageId = imageId;
   }
 
   uploadImage({
@@ -24,40 +31,73 @@ export class CloudinaryImage implements Image {
     dbId,
     image,
   }: {
-    image: import("jimp") | Buffer;
-    dbId: string;
-    code: string;
-  }): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (image instanceof Buffer) {
-        cloudinary.uploader.upload(
-          image.toString("base64"),
-          { public_id: `${dbId}-${code}` },
-          (err, result) => {
-            if (err) {
-              reject(err);
-            }
-            resolve(result);
+    image: Jimp | Buffer;
+    dbId?: string;
+    code?: string;
+  }) {
+    return new Promise(async (resolve, reject) => {
+      let cld_upload_stream = cloudinary.uploader.upload_stream(
+        {
+          public_id: this.imageId
+            ? this.imageId
+            : `${image instanceof Buffer ? "original" : "filtered"}/${dbId}${
+                code ? `-${code}` : ""
+              }`,
+        },
+        function (error, result) {
+          if (error) {
+            return reject(error);
           }
-        );
-      } else {
-        image.getBuffer(Jimp.MIME_PNG, (err, buffer) => {
-          if (err) {
-            reject(err);
-          } else {
-            cloudinary.uploader.upload(
-              buffer.toString("base64"),
-              { public_id: `${dbId}-${code}` },
-              (err, result) => {
-                if (err) {
-                  reject(err);
-                }
-                resolve(result);
-              }
-            );
-          }
+          resolve(result);
+        }
+      );
+
+      const imageBuffer =
+        image instanceof Buffer
+          ? image
+          : await image.getBufferAsync(Jimp.MIME_PNG);
+
+      streamifier
+        .createReadStream(imageBuffer)
+        .pipe(cld_upload_stream)
+        .on("error", (error) => {
+          reject(error);
         });
-      }
+    });
+  }
+
+  async deleteImage(): Promise<{
+    result: string;
+  }> {
+    return new Promise((resolve, reject) => {
+      const { imageId } = this;
+      if (!imageId) return reject("No imageId");
+      cloudinary.uploader.destroy(imageId, function (error, result) {
+        console.log({ error, result, imageId });
+
+        if (error) {
+          return reject(error);
+        }
+        resolve({
+          result: "ok",
+        });
+      });
+    });
+  }
+
+  async downloadImage(): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      if (!this.imageId) return reject("No imageId");
+      const imageUrl = cloudinary.url(this.imageId);
+      fetch(imageUrl)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to download image");
+          }
+          return response.arrayBuffer();
+        })
+        .then((buffer) => resolve(Buffer.from(buffer)))
+        .catch((error) => reject(error));
     });
   }
 }

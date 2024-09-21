@@ -19,9 +19,9 @@ import {
   CLOUDINARY_CLOUD_NAME,
 } from "../lib/constants";
 import { sortQueryParamns } from "../utils/image";
-import { AwsImage } from "../constants/Image/aws";
 import fs from "fs";
 import path from "path";
+import { CloudinaryImage } from "../constants/Image/cloudinary";
 
 cloudinary.config({
   cloud_name: CLOUDINARY_CLOUD_NAME,
@@ -71,18 +71,17 @@ export const addImage = async (request: Request, response: Response) => {
       });
     }
 
-    const key = `original/${`${user.id}-${new Date().getTime()}`}${path.extname(
-      request.file.originalname
-    )}`;
+    const key = `original/${`${user.id}-${new Date().getTime()}`}`;
     const imageData = await addImageToDb(key, user.id);
-    const awsImage = new AwsImage(key);
-    await awsImage.uploadImage({
+    const cloudinaryImage = new CloudinaryImage(key);
+    await cloudinaryImage.uploadImage({
       dbId: imageData.id,
       image: imageBuffer,
     });
     fs.rmSync(`${imageDestination}/${request.file?.filename}`);
     response.status(200).json({ message: "Upload successful", ...imageData });
   } catch (error) {
+    console.log("error", error);
     response.status(500).json({ message: (error as Error).message });
   }
 };
@@ -106,47 +105,42 @@ export const getImageById = async (request: Request, response: Response) => {
       selectedImg.isOwner = selectedImg.id === userId;
     }
     try {
-      // Try to download image from S3 if image is present in S3
       if (Object.keys(searchParams).length > 0) {
         try {
           const { code } = sortQueryParamns(searchParams);
           const key = `filtered/${public_id}-${code}.png`;
-          const image = new AwsImage(key);
+          const image = new CloudinaryImage(key);
           const imageResponse = await image.downloadImage();
           if (imageResponse) {
             response.writeHead(200, {
               "Content-Type": "image/png",
-              "Content-Length": imageResponse.ContentLength,
+              "Content-Length": imageResponse.length,
             });
-            response.end(imageResponse.Body);
+            response.end(imageResponse);
             return;
           }
         } catch (error) {}
       }
 
-      const image = new AwsImage(selectedimageKey);
-      const imageResponse = await image.downloadImage();
-      if (!imageResponse) {
-        return response.status(500).json({ message: "Failed to fetch image" });
-      }
-
-      const imageData = await imageResponse;
-
+      const image = new CloudinaryImage(selectedimageKey);
+      const imageData = await image.downloadImage();
       if (!imageData) {
+        console.log("Image not found in Cloudinary");
+
         return response.status(500).json({ message: "Failed to fetch image" });
       }
 
       if (Object.keys(searchParams).length == 0) {
         response.writeHead(200, {
           "Content-Type": "image/png",
-          "Content-Length": imageData.ContentLength,
+          "Content-Length": imageData.length,
         });
-        response.end(imageData.Body);
+        response.end(imageData);
         return;
       }
 
       const manipulatedImage = await handleManipulateImage(
-        imageData.Body as Buffer,
+        imageData,
         searchParams,
         selectedImg.id
       );
@@ -168,6 +162,8 @@ export const getImageById = async (request: Request, response: Response) => {
       response.status(500).json({ message: "Failed to fetch image" });
     }
   } catch (error) {
+    console.log("error", error);
+
     response.status(500).json({ error });
   }
 };
@@ -204,9 +200,9 @@ export const handleDeleteImage = async (
     if (!imageKeyFromDb) {
       return response.status(404).json({ message: "Image not found" });
     }
-    const image = new AwsImage(imageKeyFromDb);
+    const image = new CloudinaryImage(imageKeyFromDb);
     const deleteImage = await image.deleteImage();
-    if (deleteImage != null) {
+    if (deleteImage.result !== "ok") {
       return response.status(500).json({ message: "Failed to delete image" });
     }
     const deleteImageId = await deleteImageFromDb(public_id, user.id);

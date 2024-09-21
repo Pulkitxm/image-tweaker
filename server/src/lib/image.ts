@@ -1,7 +1,7 @@
 import Jimp from "jimp";
 import QueryString from "qs";
 import { manipulateImage, sortQueryParamns } from "../utils/image";
-import { AwsImage } from "../constants/Image/aws";
+import { CloudinaryImage } from "../constants/Image/cloudinary";
 
 export async function handleManipulateImage(
   image: Buffer,
@@ -13,7 +13,7 @@ export async function handleManipulateImage(
     const img = await Jimp.read(image);
     const manipulatedImage = manipulateImage(img, sortedParams);
     if (code) {
-      const image = new AwsImage();
+      const image = new CloudinaryImage();
       await image.uploadImage({
         image: manipulatedImage,
         code,
